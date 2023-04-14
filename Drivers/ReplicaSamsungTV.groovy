@@ -1,6 +1,6 @@
-/*	HubiThings Replica Soundbar Driver
+/*	HubiThings Replica Samsung TV Driver
 	HubiThings Replica Applications Copyright 2023 by Bloodtick
-	Replica Color Bulb Copyright 2023 by Dave Gutheinz
+	Copyright 2023 by Dave Gutheinz
 
 	Licensed under the Apache License, Version 2.0 (the "License"); 
 	you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ metadata {
 	definition (name: appliance(),
 				namespace: "replica",
 				author: "David Gutheinz",
-				importUrl: "https://raw.githubusercontent.com/DaveGut/HubitatActive/master/HubiThingsReplica/Drivers/${appliance()}.groovy"
+				importUrl: "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/${appliance()}.groovy"
 			   ){
 		capability "Actuator"
 		capability "Configuration"
@@ -102,7 +102,7 @@ metadata {
 
 String helpLogo() {
 	return """<a href="https://github.com/DaveGut/HubitatActive/blob/master/HubiThingsReplica/Docs/SamsungTVReadme.md">""" +
-		"""<div style="position: absolute; top: 20px; right: 150px; height: 80px; font-size: 28px;">Washer Help</div></a>"""
+		"""<div style="position: absolute; top: 20px; right: 150px; height: 80px; font-size: 28px;">TV Help</div></a>"""
 }
 
 //	===== Installation, setup and update =====

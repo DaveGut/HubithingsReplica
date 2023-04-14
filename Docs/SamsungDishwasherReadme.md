@@ -41,3 +41,11 @@ Remote control must be enabled on the washer panel prior to controlling the wash
 * Stop: Stop the washer.
   * Remote control must be enabled.
   * Attribute: machineState, value "stop".
+
+# Appreciation:
+### Bloodtick_Jones: Development of a great SmartThings API interface app and supporting my peculiar needs.
+
+# Contributions
+I do not take contributions for my developments.  If you find the my integrations to be of value, you may make a donation to the charity of your choice or perform an act of kindness for a stranger!
+
+Note: This readme will be updated as problems and resolutions are developed by users.

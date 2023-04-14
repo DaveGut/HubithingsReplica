@@ -1,6 +1,6 @@
-/*	HubiThings Replica Soundbar Driver
+/*	HubiThings Replica Samsung Soundbar Driver
 	HubiThings Replica Applications Copyright 2023 by Bloodtick
-	Replica Color Bulb Copyright 2023 by Dave Gutheinz
+	Copyright 2023 by Dave Gutheinz
 
 	Licensed under the Apache License, Version 2.0 (the "License"); 
 	you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ metadata {
 	definition (name: appliance(),
 				namespace: "replica",
 				author: "David Gutheinz",
-				importUrl: "https://raw.githubusercontent.com/DaveGut/HubitatActive/master/HubiThingsReplica/Drivers/${appliance()}.groovy"
+				importUrl: "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/${appliance()}.groovy"
 			   ){
 		capability "Switch"
 		capability "MediaInputSource"
@@ -61,7 +61,7 @@ metadata {
 }
 
 String helpLogo() {
-	return """<a href="https://github.com/DaveGut/HubitatActive/blob/master/HubiThingsReplica/Docs/SamsungWasherReadme.md">""" +
+	return """<a href="https://github.com/DaveGut/HubitatActive/blob/master/HubiThingsReplica/Docs/SamsungSoundbarReadme.md">""" +
 		"""<div style="position: absolute; top: 20px; right: 150px; height: 80px; font-size: 28px;">Soundbar Help</div></a>"""
 }
 
@@ -364,7 +364,7 @@ def unmute() { sendCommand("unmute") }
 
 
 
-// ~~~~~ start include (1273) davegut.samsungAudioNotify ~~~~~
+// ~~~~~ start include (1278) davegut.samsungAudioNotify ~~~~~
 library ( // library marker davegut.samsungAudioNotify, line 1
 	name: "samsungAudioNotify", // library marker davegut.samsungAudioNotify, line 2
 	namespace: "davegut", // library marker davegut.samsungAudioNotify, line 3
@@ -621,7 +621,7 @@ def parse(resp) { // library marker davegut.samsungAudioNotify, line 230
 */ // library marker davegut.samsungAudioNotify, line 254
 
 
-// ~~~~~ end include (1273) davegut.samsungAudioNotify ~~~~~
+// ~~~~~ end include (1278) davegut.samsungAudioNotify ~~~~~
 
 // ~~~~~ start include (1072) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1

@@ -1,6 +1,6 @@
-/*	HubiThings Replica RangeOven Driver
+/*	HubiThings Replica Samsung Washer Driver
 	HubiThings Replica Applications Copyright 2023 by Bloodtick
-	Replica RangeOven Copyright 2023 by Dave Gutheinz
+	Copyright 2023 by Dave Gutheinz
 
 	Licensed under the Apache License, Version 2.0 (the "License"); 
 	you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ metadata {
 	definition (name: appliance(),
 				namespace: "replica",
 				author: "David Gutheinz",
-				importUrl: "https://raw.githubusercontent.com/DaveGut/HubitatActive/master/HubiThingsReplica/Drivers/${appliance()}.groovy"
+				importUrl: "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/${appliance()}.groovy"
 			   ){
 		capability "Configuration"
 		capability "Refresh"

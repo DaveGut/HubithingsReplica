@@ -1,4 +1,4 @@
-/*	HubiThings Replica RangeOven cavity Driver
+/*	HubiThings Replica Samsung Oven cavity Driver
 	HubiThings Replica Applications Copyright 2023 by Bloodtick
 	Replica RangeOven Copyright 2023 by Dave Gutheinz
 
@@ -22,7 +22,7 @@ metadata {
 	definition (name: appliance(),
 				namespace: "replica",
 				author: "David Gutheinz",
-				importUrl: "https://raw.githubusercontent.com/DaveGut/HubitatActive/master/HubiThingsReplica/Drivers/${appliance()}.groovy"
+				importUrl: "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/${appliance()}.groovy"
 			   ){
 		capability "Refresh"
 		attribute "ovenCavityStatus", "string"
@@ -89,7 +89,8 @@ def sendRawCommand(component, capability, command, arguments = []) {
 
 
 
-// ~~~~~ start include (1268) replica.samsungOvenCommon ~~~~~
+
+// ~~~~~ start include (1276) replica.samsungOvenCommon ~~~~~
 library ( // library marker replica.samsungOvenCommon, line 1
 	name: "samsungOvenCommon", // library marker replica.samsungOvenCommon, line 2
 	namespace: "replica", // library marker replica.samsungOvenCommon, line 3
@@ -460,7 +461,7 @@ def convertHhMmSsToInt(timeValue) { // library marker replica.samsungOvenCommon,
 	return seconds // library marker replica.samsungOvenCommon, line 368
 } // library marker replica.samsungOvenCommon, line 369
 
-// ~~~~~ end include (1268) replica.samsungOvenCommon ~~~~~
+// ~~~~~ end include (1276) replica.samsungOvenCommon ~~~~~
 
 // ~~~~~ start include (1252) replica.samsungReplicaChildCommon ~~~~~
 library ( // library marker replica.samsungReplicaChildCommon, line 1

@@ -1,4 +1,4 @@
-/*	HubiThings Replica RangeOven Driver
+/*	HubiThings Replica Samsung Oven Driver
 	HubiThings Replica Applications Copyright 2023 by Bloodtick
 	Replica RangeOven Copyright 2023 by Dave Gutheinz
 
@@ -22,7 +22,7 @@ metadata {
 	definition (name: appliance(),
 				namespace: "replica",
 				author: "David Gutheinz",
-				importUrl: "https://raw.githubusercontent.com/DaveGut/HubitatActive/master/HubiThingsReplica/Drivers/${appliance()}.groovy"
+				importUrl: "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/${appliance()}.groovy"
 			   ){
 		capability "Configuration"
 		capability "Refresh"
@@ -141,7 +141,7 @@ def setOvenLight(lightLevel) {
 
 
 
-// ~~~~~ start include (1268) replica.samsungOvenCommon ~~~~~
+// ~~~~~ start include (1276) replica.samsungOvenCommon ~~~~~
 library ( // library marker replica.samsungOvenCommon, line 1
 	name: "samsungOvenCommon", // library marker replica.samsungOvenCommon, line 2
 	namespace: "replica", // library marker replica.samsungOvenCommon, line 3
@@ -512,7 +512,7 @@ def convertHhMmSsToInt(timeValue) { // library marker replica.samsungOvenCommon,
 	return seconds // library marker replica.samsungOvenCommon, line 368
 } // library marker replica.samsungOvenCommon, line 369
 
-// ~~~~~ end include (1268) replica.samsungOvenCommon ~~~~~
+// ~~~~~ end include (1276) replica.samsungOvenCommon ~~~~~
 
 // ~~~~~ start include (1251) replica.samsungReplicaCommon ~~~~~
 library ( // library marker replica.samsungReplicaCommon, line 1
