@@ -36,11 +36,3 @@ Remote control must be enabled on the washer panel prior to controlling the wash
 * Documentation: https://github.com/DaveGut/HubitatActive/blob/master/SamsungMultiroom/Documents/Documentation.pdf
 * Note on internal buttons: https://github.com/DaveGut/HubitatActive/blob/master/SamsungMultiroom/Documents/Button%20Notes.jpg
 * Example dashboard: https://github.com/DaveGut/HubitatActive/blob/master/SamsungMultiroom/Documents/Dashboard1.jpg
-
-# Appreciation:
-### Bloodtick_Jones: Development of a great SmartThings API interface app and supporting my peculiar needs.
-
-# Contributions
-I do not take contributions for my developments.  If you find the my integrations to be of value, you may make a donation to the charity of your choice or perform an act of kindness for a stranger!
-
-Note: This readme will be updated as problems and resolutions are developed by users.
