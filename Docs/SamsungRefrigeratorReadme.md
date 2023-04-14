@@ -1,4 +1,4 @@
-# HubiThings Replica Samsung Oven
+# HubiThings Replica Samsung Refrigerator
 
 ## NOTE: Not all functions work for all devices.  Samsung has chosen to disable non-SmartThings access to Start, Pause, and Set Operation Time functions for "safety" reasons.
 Link to SmartThings Article:  https://community.smartthings.com/t/samsung-oven-apis-for-setting-cooking-mode-setpoint-cooking-time/251558/7?u=gutheinz
