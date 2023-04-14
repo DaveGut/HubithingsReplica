@@ -1,8 +1,7 @@
 # HubithingsReplica
 HubiThings Replica Drivers for Hubitat integration of SmartThings legacy devices (devices that do not have Hubitat Integrations).
 
-## Requires previous installation and checkout of the HubiThing Replica Integration within Hubitat Enviroment.  Link:
-https://community.hubitat.com/t/release-hubithings-replica/107976
+## Requires previous installation and checkout of the HubiThing Replica Integration within Hubitat Enviroment.  Link: https://community.hubitat.com/t/release-hubithings-replica/107976
 
 If available it is recommended to read the associated ReadMe prior to installation.
 
