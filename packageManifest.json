@@ -79,8 +79,8 @@
     },
     {
       "id": "63a96cba-fe94-4ede-8fe7-a3c4e6c535e6",
-      "name": "parent*",
-      "namespace": "Samsung Soundbar",
+      "name": "Samsung Soundbar",
+      "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungSoundbar.groovy",
       "required": false
     },
