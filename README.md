@@ -3,7 +3,7 @@ HubiThings Replica Drivers for Hubitat integration of SmartThings legacy devices
 
 ## Requires previous installation and checkout of the HubiThing Replica Integration within Hubitat Enviroment.  Link: https://community.hubitat.com/t/release-hubithings-replica/107976
 
-If available it is recommended to read the associated ReadMe prior to installation.
+If available it is recommended to read the associated ReadMe prior to installation.  The ReadMe files can also be accessed from the device HELP button at the top of the device's edit page.
 
 ### Generic Color Temp Bulb
 * Driver: https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaCTBulb.groovy
