@@ -6,11 +6,6 @@
   * Enter the TV's IP address in the preferences section of the Device's page and SAVE PREFERENCES
   * Assure the TV's internal settings at Menu > General > External Device Manager > Device Connect Manager > Access Notification is set to "First Time Only"
   * With remote in-hand, select the menu key and select "Allow" on the pop-up on your TV set.  This will enable Websocket communications to complete the control chain.
-* Audio Notification.  This is for test/demonstration purposes only.
-  * Select "Use Alternate TTS Method" and save preferences
-  * Go to the Free voices.rss and create an account and obtain a key.
-  * Enter the Key and save preferences.
-  * To test, turn the TV on (make sure switch value is on) and select "Test Audio Notify".  This will start with barking dogs and then a TTS Stream.
 * TV Applications.  Driver includes this capability.  It must be loaded via the device before it will work
   * Installing Apps (searching on TV)
     * In preferences, select "Scan for App Codes (use rarely)" and save preferences.
