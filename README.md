@@ -51,7 +51,7 @@ If available it is recommended to read the associated ReadMe prior to installati
 * ReadMe: https://github.com/DaveGut/HubithingsReplica/blob/main/Docs/SamsungWasherReadme.md
 
 ### Bundles
-Bundles for use in Hubitat Libraries are contained in https://github.com/DaveGut/HubithingsReplica/tree/main/Bundles
+Bundles for use in Hubitat Libraries are contained in https://github.com/DaveGut/HubithingsReplica/tree/main/Bundles.  You should download the ReplicaCommon driver plus the driver for your device (not all device drivers use ReplicaCommon).
 
 ## Appreciation:
 ### Bloodtick_Jones: Development of a great SmartThings API interface app and supporting my peculiar needs.
