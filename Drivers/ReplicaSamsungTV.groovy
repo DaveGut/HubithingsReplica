@@ -671,7 +671,7 @@ def webSocketStatus(message) {
 	logDebug("webSocketStatus: [status: ${status}, message: ${message}]")
 }
 
-def parseWs(resp) {
+def parse(resp) {
 	def logData = [:]
 	try {
 		resp = parseJson(resp)
