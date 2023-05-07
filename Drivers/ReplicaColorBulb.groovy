@@ -12,12 +12,16 @@
 	implied. See the License for the specific language governing 
 	permissions and limitations under the License.
 
+Changes:
+1.0-1:	
+a.	Changed link to help file.
+b.	Added logging prefs to library logging.
+
 Issues with this driver: Contact davegut via Private Message on the
 Hubitat Community site: https://community.hubitat.com/
-
 ==========================================================================*/
 import groovy.json.JsonOutput
-def driverVer() { return "1.0" }
+def driverVer() { return "1.0-1" }
 def appliance() { return "ReplicaColorBulb" }
 
 metadata {
@@ -43,19 +47,12 @@ metadata {
 		attribute "healthStatus", "enum", ["offline", "online"]
 	}
 	preferences {
-		input ("textEnable", "bool", 
-			   title: "Enable descriptionText logging",
-			   defaultValue: true)
-		input ("logEnable", "bool",
-			   title: "Enable debug logging",
-			   defaultValue: false)
-		input ("transTime", "number",
-			   title: "Default Transition time (seconds)",
-			   defaultValue: 1)
 		input ("ctLow", "number", title: "lowerLimit of Color Temp", defaultValue: 2000)
 		input ("ctHigh", "number", title: "UpperLimit of Color Temp", defaultValue: 9000)
 	}
 }
+
+String helpLogo() { return "" }
 
 def installed() {
 	initialize()	

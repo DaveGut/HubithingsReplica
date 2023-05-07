@@ -15,11 +15,16 @@
 Appreciation and thanks to bthrock for his initial version of this
 driver and support in the developing the below version.
 
+Changes:
+1.0-1:	
+a.	Changed link to help file.
+b.	Added logging prefs to library logging.
+
 Issues with this driver: Contact davegut via Private Message on the
 Hubitat Community site: https://community.hubitat.com/
 ==========================================================================*/
 import groovy.json.JsonOutput
-def driverVer() { return "1.0" }
+def driverVer() { return "1.0-1" }
 def appliance() { return "ReplicaMotionSensingDoorbell" }
 
 metadata {
@@ -40,14 +45,10 @@ metadata {
         attribute "healthStatus", "enum", ["offline", "online"]
     }
     preferences {   
-		input ("textEnable", "bool", 
-			   title: "Enable descriptionText logging",
-			   defaultValue: true)
-		input ("logEnable", "bool",
-			   title: "Enable debug logging",
-			   defaultValue: false)
     }
 }
+
+String helpLogo() { return "" }
 
 def installed() {
 	initialize()

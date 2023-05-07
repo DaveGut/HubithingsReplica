@@ -1,21 +1,11 @@
 /*	HubiThings Replica Samsung Oven cavity Driver
 	HubiThings Replica Applications Copyright 2023 by Bloodtick
-	Replica RangeOven Copyright 2023 by Dave Gutheinz
+	Replica RangeOvenCavity Copyright 2023 by Dave Gutheinz
 
-	Licensed under the Apache License, Version 2.0 (the "License"); 
-	you may not use this file except in compliance with the License.
-	You may obtain a copy of the License at:
-	      http://www.apache.org/licenses/LICENSE-2.0
-	Unless required by applicable law or agreed to in writing, software 
-	distributed under the License is distributed on an "AS IS" BASIS, 
-	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-	implied. See the License for the specific language governing 
-	permissions and limitations under the License.
 
-Issues with this driver: Contact davegut via Private Message on the
-Hubitat Community site: https://community.hubitat.com/
+	See parent driver for added information.
 ==========================================================================*/
-def driverVer() { return "1.0" }
+def driverVer() { return "1.0-1" }
 def appliance() { return "ReplicaSamsungOvenCavity" }
 
 metadata {
@@ -28,21 +18,7 @@ metadata {
 		attribute "ovenCavityStatus", "string"
 	}
 	preferences {
-		input ("logEnable", "bool",  title: "Enable debug logging for 30 minutes", defaultValue: false)
-		input ("infoLog", "bool", title: "Enable information logging${helpLogo()}${warnLogo()}",defaultValue: true)
-		input ("traceLog", "bool", title: "Enable trace logging as directed by developer", defaultValue: false)
 	}
-}
-
-String helpLogo() {
-	return """<a href="https://github.com/DaveGut/HubitatActive/blob/master/HubiThingsReplica/Docs/SamsungOvenReadme.md">""" +
-		"""<div style="position: absolute; top: 20px; right: 150px; height: 80px; font-size: 28px;">Oven Help</div></a>"""
-}
-
-String warnLogo() {
-	String text = "Start, Pause, Set Operation Time may not work"
-	return """<a><div style="position: absolute; top: 60px; right: 50px;""" +
-		   """height: 80px; font-size: 16px;">(${text})</div></a>"""
 }
 
 //	===== Installation, setup and update =====
@@ -90,7 +66,7 @@ def sendRawCommand(component, capability, command, arguments = []) {
 
 
 
-// ~~~~~ start include (1276) replica.samsungOvenCommon ~~~~~
+// ~~~~~ start include (1307) replica.samsungOvenCommon ~~~~~
 library ( // library marker replica.samsungOvenCommon, line 1
 	name: "samsungOvenCommon", // library marker replica.samsungOvenCommon, line 2
 	namespace: "replica", // library marker replica.samsungOvenCommon, line 3
@@ -119,351 +95,356 @@ attribute "ovenJobState", "string" // library marker replica.samsungOvenCommon, 
 attribute "operationTime", "string" // library marker replica.samsungOvenCommon, line 26
 command "setOperationTime", [[name: "time (hh:mm:ss OR secs)", type: "STRING"]] // library marker replica.samsungOvenCommon, line 27
 
-def parseEvent(event) { // library marker replica.samsungOvenCommon, line 29
-	logDebug("parseEvent: <b>${event}</b>") // library marker replica.samsungOvenCommon, line 30
-	if (state.deviceCapabilities.contains(event.capability)) { // library marker replica.samsungOvenCommon, line 31
-		logTrace("parseEvent: <b>${event}</b>") // library marker replica.samsungOvenCommon, line 32
-		if (event.value != null) { // library marker replica.samsungOvenCommon, line 33
-			switch(event.attribute) { // library marker replica.samsungOvenCommon, line 34
-				case "machineState": // library marker replica.samsungOvenCommon, line 35
-					if (!state.deviceCapabilities.contains("samsungce.ovenOperatingState")) { // library marker replica.samsungOvenCommon, line 36
-						event.attribute = "operatingState" // library marker replica.samsungOvenCommon, line 37
-						setEvent(event) // library marker replica.samsungOvenCommon, line 38
-					} // library marker replica.samsungOvenCommon, line 39
-					break // library marker replica.samsungOvenCommon, line 40
-				case "operationTime": // library marker replica.samsungOvenCommon, line 41
-					def opTime = formatTime(event.value, "hhmmss", "parseEvent") // library marker replica.samsungOvenCommon, line 42
-					event.value = opTime // library marker replica.samsungOvenCommon, line 43
-				case "completionTime": // library marker replica.samsungOvenCommon, line 44
-				case "progress": // library marker replica.samsungOvenCommon, line 45
-				case "ovenJobState": // library marker replica.samsungOvenCommon, line 46
-				case "operationTime": // library marker replica.samsungOvenCommon, line 47
-					if (state.deviceCapabilities.contains("samsungce.ovenOperatingState")) { // library marker replica.samsungOvenCommon, line 48
-						if (event.capability == "samsungce.ovenOperatingState") { // library marker replica.samsungOvenCommon, line 49
-							setEvent(event) // library marker replica.samsungOvenCommon, line 50
-						} // library marker replica.samsungOvenCommon, line 51
-					} else { // library marker replica.samsungOvenCommon, line 52
-						setEvent(event) // library marker replica.samsungOvenCommon, line 53
-					} // library marker replica.samsungOvenCommon, line 54
-					break // library marker replica.samsungOvenCommon, line 55
-				case "temperature": // library marker replica.samsungOvenCommon, line 56
-					def attr = "ovenTemperature" // library marker replica.samsungOvenCommon, line 57
-					if (event.capability == "samsungce.meatProbe") { // library marker replica.samsungOvenCommon, line 58
-						attr = "probeTemperature" // library marker replica.samsungOvenCommon, line 59
-					} // library marker replica.samsungOvenCommon, line 60
-					event["attribute"] = attr // library marker replica.samsungOvenCommon, line 61
-					setEvent(event) // library marker replica.samsungOvenCommon, line 62
-					break // library marker replica.samsungOvenCommon, line 63
-				case "temperatureSetpoint": // library marker replica.samsungOvenCommon, line 64
-					event["attribute"] = "probeSetpoint" // library marker replica.samsungOvenCommon, line 65
-					setEvent(event) // library marker replica.samsungOvenCommon, line 66
-					break // library marker replica.samsungOvenCommon, line 67
-				case "status": // library marker replica.samsungOvenCommon, line 68
-					event["attribute"] = "probeStatus" // library marker replica.samsungOvenCommon, line 69
-					setEvent(event) // library marker replica.samsungOvenCommon, line 70
-					break // library marker replica.samsungOvenCommon, line 71
-				case "ovenMode": // library marker replica.samsungOvenCommon, line 72
-					if (state.deviceCapabilities.contains("samsungce.ovenMode")) { // library marker replica.samsungOvenCommon, line 73
-						if (event.capability == "samsungce.ovenMode") { // library marker replica.samsungOvenCommon, line 74
-							setEvent(event) // library marker replica.samsungOvenCommon, line 75
-						} // library marker replica.samsungOvenCommon, line 76
-					} else { // library marker replica.samsungOvenCommon, line 77
-						setEvent(event) // library marker replica.samsungOvenCommon, line 78
-					} // library marker replica.samsungOvenCommon, line 79
-					break // library marker replica.samsungOvenCommon, line 80
-				case "supportedOvenModes": // library marker replica.samsungOvenCommon, line 81
-				//	if samsungce.ovenMode, use that, otherwise use // library marker replica.samsungOvenCommon, line 82
-				//	ovenMode.  Format always hh:mm:ss. // library marker replica.samsungOvenCommon, line 83
-					if (state.deviceCapabilities.contains("samsungce.ovenMode")) { // library marker replica.samsungOvenCommon, line 84
-						if (event.capability == "samsungce.ovenMode") { // library marker replica.samsungOvenCommon, line 85
-							setState(event) // library marker replica.samsungOvenCommon, line 86
-						} // library marker replica.samsungOvenCommon, line 87
-					} else { // library marker replica.samsungOvenCommon, line 88
-						setState(event) // library marker replica.samsungOvenCommon, line 89
-					} // library marker replica.samsungOvenCommon, line 90
-					break // library marker replica.samsungOvenCommon, line 91
-				case "supportedBrightnessLevel": // library marker replica.samsungOvenCommon, line 92
-					setState(event) // library marker replica.samsungOvenCommon, line 93
-					break // library marker replica.samsungOvenCommon, line 94
-				case "supportedCooktopOperatingState": // library marker replica.samsungOvenCommon, line 95
+String helpLogo() { // library marker replica.samsungOvenCommon, line 29
+	return """<a href="https://github.com/DaveGut/HubithingsReplica/blob/main/Docs/SamsungOvenReadme.md">""" + // library marker replica.samsungOvenCommon, line 30
+		"""<div style="position: absolute; top: 20px; right: 150px; height: 80px; font-size: 28px;">Oven Help</div></a>""" // library marker replica.samsungOvenCommon, line 31
+} // library marker replica.samsungOvenCommon, line 32
+
+def parseEvent(event) { // library marker replica.samsungOvenCommon, line 34
+	logDebug("parseEvent: <b>${event}</b>") // library marker replica.samsungOvenCommon, line 35
+	if (state.deviceCapabilities.contains(event.capability)) { // library marker replica.samsungOvenCommon, line 36
+		logTrace("parseEvent: <b>${event}</b>") // library marker replica.samsungOvenCommon, line 37
+		if (event.value != null) { // library marker replica.samsungOvenCommon, line 38
+			switch(event.attribute) { // library marker replica.samsungOvenCommon, line 39
+				case "machineState": // library marker replica.samsungOvenCommon, line 40
+					if (!state.deviceCapabilities.contains("samsungce.ovenOperatingState")) { // library marker replica.samsungOvenCommon, line 41
+						event.attribute = "operatingState" // library marker replica.samsungOvenCommon, line 42
+						setEvent(event) // library marker replica.samsungOvenCommon, line 43
+					} // library marker replica.samsungOvenCommon, line 44
+					break // library marker replica.samsungOvenCommon, line 45
+				case "operationTime": // library marker replica.samsungOvenCommon, line 46
+					def opTime = formatTime(event.value, "hhmmss", "parseEvent") // library marker replica.samsungOvenCommon, line 47
+					event.value = opTime // library marker replica.samsungOvenCommon, line 48
+				case "completionTime": // library marker replica.samsungOvenCommon, line 49
+				case "progress": // library marker replica.samsungOvenCommon, line 50
+				case "ovenJobState": // library marker replica.samsungOvenCommon, line 51
+				case "operationTime": // library marker replica.samsungOvenCommon, line 52
+					if (state.deviceCapabilities.contains("samsungce.ovenOperatingState")) { // library marker replica.samsungOvenCommon, line 53
+						if (event.capability == "samsungce.ovenOperatingState") { // library marker replica.samsungOvenCommon, line 54
+							setEvent(event) // library marker replica.samsungOvenCommon, line 55
+						} // library marker replica.samsungOvenCommon, line 56
+					} else { // library marker replica.samsungOvenCommon, line 57
+						setEvent(event) // library marker replica.samsungOvenCommon, line 58
+					} // library marker replica.samsungOvenCommon, line 59
+					break // library marker replica.samsungOvenCommon, line 60
+				case "temperature": // library marker replica.samsungOvenCommon, line 61
+					def attr = "ovenTemperature" // library marker replica.samsungOvenCommon, line 62
+					if (event.capability == "samsungce.meatProbe") { // library marker replica.samsungOvenCommon, line 63
+						attr = "probeTemperature" // library marker replica.samsungOvenCommon, line 64
+					} // library marker replica.samsungOvenCommon, line 65
+					event["attribute"] = attr // library marker replica.samsungOvenCommon, line 66
+					setEvent(event) // library marker replica.samsungOvenCommon, line 67
+					break // library marker replica.samsungOvenCommon, line 68
+				case "temperatureSetpoint": // library marker replica.samsungOvenCommon, line 69
+					event["attribute"] = "probeSetpoint" // library marker replica.samsungOvenCommon, line 70
+					setEvent(event) // library marker replica.samsungOvenCommon, line 71
+					break // library marker replica.samsungOvenCommon, line 72
+				case "status": // library marker replica.samsungOvenCommon, line 73
+					event["attribute"] = "probeStatus" // library marker replica.samsungOvenCommon, line 74
+					setEvent(event) // library marker replica.samsungOvenCommon, line 75
+					break // library marker replica.samsungOvenCommon, line 76
+				case "ovenMode": // library marker replica.samsungOvenCommon, line 77
+					if (state.deviceCapabilities.contains("samsungce.ovenMode")) { // library marker replica.samsungOvenCommon, line 78
+						if (event.capability == "samsungce.ovenMode") { // library marker replica.samsungOvenCommon, line 79
+							setEvent(event) // library marker replica.samsungOvenCommon, line 80
+						} // library marker replica.samsungOvenCommon, line 81
+					} else { // library marker replica.samsungOvenCommon, line 82
+						setEvent(event) // library marker replica.samsungOvenCommon, line 83
+					} // library marker replica.samsungOvenCommon, line 84
+					break // library marker replica.samsungOvenCommon, line 85
+				case "supportedOvenModes": // library marker replica.samsungOvenCommon, line 86
+				//	if samsungce.ovenMode, use that, otherwise use // library marker replica.samsungOvenCommon, line 87
+				//	ovenMode.  Format always hh:mm:ss. // library marker replica.samsungOvenCommon, line 88
+					if (state.deviceCapabilities.contains("samsungce.ovenMode")) { // library marker replica.samsungOvenCommon, line 89
+						if (event.capability == "samsungce.ovenMode") { // library marker replica.samsungOvenCommon, line 90
+							setState(event) // library marker replica.samsungOvenCommon, line 91
+						} // library marker replica.samsungOvenCommon, line 92
+					} else { // library marker replica.samsungOvenCommon, line 93
+						setState(event) // library marker replica.samsungOvenCommon, line 94
+					} // library marker replica.samsungOvenCommon, line 95
 					break // library marker replica.samsungOvenCommon, line 96
-				default: // library marker replica.samsungOvenCommon, line 97
-					setEvent(event) // library marker replica.samsungOvenCommon, line 98
+				case "supportedBrightnessLevel": // library marker replica.samsungOvenCommon, line 97
+					setState(event) // library marker replica.samsungOvenCommon, line 98
 					break // library marker replica.samsungOvenCommon, line 99
-			} // library marker replica.samsungOvenCommon, line 100
-		} // library marker replica.samsungOvenCommon, line 101
-	} // library marker replica.samsungOvenCommon, line 102
-} // library marker replica.samsungOvenCommon, line 103
+				case "supportedCooktopOperatingState": // library marker replica.samsungOvenCommon, line 100
+					break // library marker replica.samsungOvenCommon, line 101
+				default: // library marker replica.samsungOvenCommon, line 102
+					setEvent(event) // library marker replica.samsungOvenCommon, line 103
+					break // library marker replica.samsungOvenCommon, line 104
+			} // library marker replica.samsungOvenCommon, line 105
+		} // library marker replica.samsungOvenCommon, line 106
+	} // library marker replica.samsungOvenCommon, line 107
+} // library marker replica.samsungOvenCommon, line 108
 
-def setState(event) { // library marker replica.samsungOvenCommon, line 105
-	def attribute = event.attribute // library marker replica.samsungOvenCommon, line 106
-	if (state."${attribute}" != event.value) { // library marker replica.samsungOvenCommon, line 107
-		state."${event.attribute}" = event.value // library marker replica.samsungOvenCommon, line 108
-		logInfo("setState: [event: ${event}]") // library marker replica.samsungOvenCommon, line 109
-	} // library marker replica.samsungOvenCommon, line 110
-} // library marker replica.samsungOvenCommon, line 111
+def setState(event) { // library marker replica.samsungOvenCommon, line 110
+	def attribute = event.attribute // library marker replica.samsungOvenCommon, line 111
+	if (state."${attribute}" != event.value) { // library marker replica.samsungOvenCommon, line 112
+		state."${event.attribute}" = event.value // library marker replica.samsungOvenCommon, line 113
+		logInfo("setState: [event: ${event}]") // library marker replica.samsungOvenCommon, line 114
+	} // library marker replica.samsungOvenCommon, line 115
+} // library marker replica.samsungOvenCommon, line 116
 
-def setEvent(event) { // library marker replica.samsungOvenCommon, line 113
-	logTrace("<b>setEvent</b>: ${event}") // library marker replica.samsungOvenCommon, line 114
-	sendEvent(name: event.attribute, value: event.value, unit: event.unit) // library marker replica.samsungOvenCommon, line 115
-	if (device.currentValue(event.attribute).toString() != event.value.toString()) { // library marker replica.samsungOvenCommon, line 116
-		logInfo("setEvent: [event: ${event}]") // library marker replica.samsungOvenCommon, line 117
-	} // library marker replica.samsungOvenCommon, line 118
-} // library marker replica.samsungOvenCommon, line 119
+def setEvent(event) { // library marker replica.samsungOvenCommon, line 118
+	logTrace("<b>setEvent</b>: ${event}") // library marker replica.samsungOvenCommon, line 119
+	sendEvent(name: event.attribute, value: event.value, unit: event.unit) // library marker replica.samsungOvenCommon, line 120
+	if (device.currentValue(event.attribute).toString() != event.value.toString()) { // library marker replica.samsungOvenCommon, line 121
+		logInfo("setEvent: [event: ${event}]") // library marker replica.samsungOvenCommon, line 122
+	} // library marker replica.samsungOvenCommon, line 123
+} // library marker replica.samsungOvenCommon, line 124
 
-//	===== Device Commands ===== // library marker replica.samsungOvenCommon, line 121
-def setOvenMode(mode) { // library marker replica.samsungOvenCommon, line 122
-	def ovenMode = checkMode(mode) // library marker replica.samsungOvenCommon, line 123
-	def hasAdvCap =  state.deviceCapabilities.contains("samsungce.ovenOperatingState") // library marker replica.samsungOvenCommon, line 124
-	Map cmdStatus = [mode: mode, ovenMode: ovenMode, hasAdvCap: hasAdvCap] // library marker replica.samsungOvenCommon, line 125
-	if (ovenMode == "notSupported") { // library marker replica.samsungOvenCommon, line 126
-		cmdStatus << [FAILED: ovenMode] // library marker replica.samsungOvenCommon, line 127
-	} else if (hasAdvCap) { // library marker replica.samsungOvenCommon, line 128
-		cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 129
-									"samsungce.ovenMode", "setOvenMode", [ovenMode]) // library marker replica.samsungOvenCommon, line 130
-	} else { // library marker replica.samsungOvenCommon, line 131
-		cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 132
-									"ovenMode", "setOvenMode", [ovenMode]) // library marker replica.samsungOvenCommon, line 133
-	} // library marker replica.samsungOvenCommon, line 134
-	logInfo("setOvenMode: ${cmdStatus}") // library marker replica.samsungOvenCommon, line 135
-} // library marker replica.samsungOvenCommon, line 136
+//	===== Device Commands ===== // library marker replica.samsungOvenCommon, line 126
+def setOvenMode(mode) { // library marker replica.samsungOvenCommon, line 127
+	def ovenMode = checkMode(mode) // library marker replica.samsungOvenCommon, line 128
+	def hasAdvCap =  state.deviceCapabilities.contains("samsungce.ovenOperatingState") // library marker replica.samsungOvenCommon, line 129
+	Map cmdStatus = [mode: mode, ovenMode: ovenMode, hasAdvCap: hasAdvCap] // library marker replica.samsungOvenCommon, line 130
+	if (ovenMode == "notSupported") { // library marker replica.samsungOvenCommon, line 131
+		cmdStatus << [FAILED: ovenMode] // library marker replica.samsungOvenCommon, line 132
+	} else if (hasAdvCap) { // library marker replica.samsungOvenCommon, line 133
+		cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 134
+									"samsungce.ovenMode", "setOvenMode", [ovenMode]) // library marker replica.samsungOvenCommon, line 135
+	} else { // library marker replica.samsungOvenCommon, line 136
+		cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 137
+									"ovenMode", "setOvenMode", [ovenMode]) // library marker replica.samsungOvenCommon, line 138
+	} // library marker replica.samsungOvenCommon, line 139
+	logInfo("setOvenMode: ${cmdStatus}") // library marker replica.samsungOvenCommon, line 140
+} // library marker replica.samsungOvenCommon, line 141
 
-def checkMode(mode) { // library marker replica.samsungOvenCommon, line 138
-	mode = state.supportedOvenModes.find { it.toLowerCase() == mode.toLowerCase() } // library marker replica.samsungOvenCommon, line 139
-	if (mode == null) { // library marker replica.samsungOvenCommon, line 140
-		mode = "notSupported" // library marker replica.samsungOvenCommon, line 141
-	} // library marker replica.samsungOvenCommon, line 142
-	return mode // library marker replica.samsungOvenCommon, line 143
-} // library marker replica.samsungOvenCommon, line 144
+def checkMode(mode) { // library marker replica.samsungOvenCommon, line 143
+	mode = state.supportedOvenModes.find { it.toLowerCase() == mode.toLowerCase() } // library marker replica.samsungOvenCommon, line 144
+	if (mode == null) { // library marker replica.samsungOvenCommon, line 145
+		mode = "notSupported" // library marker replica.samsungOvenCommon, line 146
+	} // library marker replica.samsungOvenCommon, line 147
+	return mode // library marker replica.samsungOvenCommon, line 148
+} // library marker replica.samsungOvenCommon, line 149
 
-def setOvenSetpoint(setpoint) { // library marker replica.samsungOvenCommon, line 146
-	setpoint = setpoint.toInteger() // library marker replica.samsungOvenCommon, line 147
-	Map cmdStatus = [setpoint: setpoint] // library marker replica.samsungOvenCommon, line 148
-	if (setpoint >= 0) { // library marker replica.samsungOvenCommon, line 149
-		cmdStatus << sendRawCommand(getDataValue("componentId"), "ovenSetpoint", "setOvenSetpoint", [setpoint]) // library marker replica.samsungOvenCommon, line 150
-		logInfo("setOvenSetpoint: ${setpoint}") // library marker replica.samsungOvenCommon, line 151
-	} else { // library marker replica.samsungOvenCommon, line 152
-		cmdStatus << [FAILED: "invalidSetpoint"] // library marker replica.samsungOvenCommon, line 153
-	} // library marker replica.samsungOvenCommon, line 154
-	logInfo("setOvenSetpoint: ${cmdStatus}") // library marker replica.samsungOvenCommon, line 155
-} // library marker replica.samsungOvenCommon, line 156
+def setOvenSetpoint(setpoint) { // library marker replica.samsungOvenCommon, line 151
+	setpoint = setpoint.toInteger() // library marker replica.samsungOvenCommon, line 152
+	Map cmdStatus = [setpoint: setpoint] // library marker replica.samsungOvenCommon, line 153
+	if (setpoint >= 0) { // library marker replica.samsungOvenCommon, line 154
+		cmdStatus << sendRawCommand(getDataValue("componentId"), "ovenSetpoint", "setOvenSetpoint", [setpoint]) // library marker replica.samsungOvenCommon, line 155
+		logInfo("setOvenSetpoint: ${setpoint}") // library marker replica.samsungOvenCommon, line 156
+	} else { // library marker replica.samsungOvenCommon, line 157
+		cmdStatus << [FAILED: "invalidSetpoint"] // library marker replica.samsungOvenCommon, line 158
+	} // library marker replica.samsungOvenCommon, line 159
+	logInfo("setOvenSetpoint: ${cmdStatus}") // library marker replica.samsungOvenCommon, line 160
+} // library marker replica.samsungOvenCommon, line 161
 
-def setOperationTime(opTime) { // library marker replica.samsungOvenCommon, line 158
-	def hasAdvCap =  state.deviceCapabilities.contains("samsungce.ovenOperatingState") // library marker replica.samsungOvenCommon, line 159
-	Map cmdStatus = [opTime: opTime, hasAdvCap: hasAdvCap] // library marker replica.samsungOvenCommon, line 160
-	def success = true // library marker replica.samsungOvenCommon, line 161
-	def hhmmss = formatTime(opTime, "hhmmss", "setOperationTime") // library marker replica.samsungOvenCommon, line 162
-	if (hasAdvCap) { // library marker replica.samsungOvenCommon, line 163
-		cmdStatus << [formatedOpTime: opTime] // library marker replica.samsungOvenCommon, line 164
-		if (opTime == "invalidEntry") { // library marker replica.samsungOvenCommon, line 165
-			cmdStatus << [FAILED: opTime] // library marker replica.samsungOvenCommon, line 166
-			success = false // library marker replica.samsungOvenCommon, line 167
-		} else { // library marker replica.samsungOvenCommon, line 168
-			cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 169
-										"samsungce.ovenOperatingState",  // library marker replica.samsungOvenCommon, line 170
-										"setOperationTime", [hhmmss]) // library marker replica.samsungOvenCommon, line 171
-		} // library marker replica.samsungOvenCommon, line 172
-	} else { // library marker replica.samsungOvenCommon, line 173
-		opTime = formatTime(opTime, "seconds", "setOperationTime") // library marker replica.samsungOvenCommon, line 174
-		cmdStatus << [formatedOpTime: opTime] // library marker replica.samsungOvenCommon, line 175
-		if (opTime == "invalidEntry") { // library marker replica.samsungOvenCommon, line 176
-			cmdStatus << [FAILED: opTime] // library marker replica.samsungOvenCommon, line 177
-			success = false // library marker replica.samsungOvenCommon, line 178
-		} else { // library marker replica.samsungOvenCommon, line 179
-			Map opCmd = [time: opTime] // library marker replica.samsungOvenCommon, line 180
-			cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 181
-										"ovenOperatingState",  // library marker replica.samsungOvenCommon, line 182
-										"start", [opCmd]) // library marker replica.samsungOvenCommon, line 183
-		} // library marker replica.samsungOvenCommon, line 184
-	} // library marker replica.samsungOvenCommon, line 185
-	logInfo("setOperationTime: ${cmdStatus}") // library marker replica.samsungOvenCommon, line 186
-	if (success) { // library marker replica.samsungOvenCommon, line 187
-		runIn(10, checkAttribute, [data: ["setOperationTime", "operationTime", hhmmss]]) // library marker replica.samsungOvenCommon, line 188
-	} // library marker replica.samsungOvenCommon, line 189
-} // library marker replica.samsungOvenCommon, line 190
+def setOperationTime(opTime) { // library marker replica.samsungOvenCommon, line 163
+	def hasAdvCap =  state.deviceCapabilities.contains("samsungce.ovenOperatingState") // library marker replica.samsungOvenCommon, line 164
+	Map cmdStatus = [opTime: opTime, hasAdvCap: hasAdvCap] // library marker replica.samsungOvenCommon, line 165
+	def success = true // library marker replica.samsungOvenCommon, line 166
+	def hhmmss = formatTime(opTime, "hhmmss", "setOperationTime") // library marker replica.samsungOvenCommon, line 167
+	if (hasAdvCap) { // library marker replica.samsungOvenCommon, line 168
+		cmdStatus << [formatedOpTime: opTime] // library marker replica.samsungOvenCommon, line 169
+		if (opTime == "invalidEntry") { // library marker replica.samsungOvenCommon, line 170
+			cmdStatus << [FAILED: opTime] // library marker replica.samsungOvenCommon, line 171
+			success = false // library marker replica.samsungOvenCommon, line 172
+		} else { // library marker replica.samsungOvenCommon, line 173
+			cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 174
+										"samsungce.ovenOperatingState",  // library marker replica.samsungOvenCommon, line 175
+										"setOperationTime", [hhmmss]) // library marker replica.samsungOvenCommon, line 176
+		} // library marker replica.samsungOvenCommon, line 177
+	} else { // library marker replica.samsungOvenCommon, line 178
+		opTime = formatTime(opTime, "seconds", "setOperationTime") // library marker replica.samsungOvenCommon, line 179
+		cmdStatus << [formatedOpTime: opTime] // library marker replica.samsungOvenCommon, line 180
+		if (opTime == "invalidEntry") { // library marker replica.samsungOvenCommon, line 181
+			cmdStatus << [FAILED: opTime] // library marker replica.samsungOvenCommon, line 182
+			success = false // library marker replica.samsungOvenCommon, line 183
+		} else { // library marker replica.samsungOvenCommon, line 184
+			Map opCmd = [time: opTime] // library marker replica.samsungOvenCommon, line 185
+			cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 186
+										"ovenOperatingState",  // library marker replica.samsungOvenCommon, line 187
+										"start", [opCmd]) // library marker replica.samsungOvenCommon, line 188
+		} // library marker replica.samsungOvenCommon, line 189
+	} // library marker replica.samsungOvenCommon, line 190
+	logInfo("setOperationTime: ${cmdStatus}") // library marker replica.samsungOvenCommon, line 191
+	if (success) { // library marker replica.samsungOvenCommon, line 192
+		runIn(10, checkAttribute, [data: ["setOperationTime", "operationTime", hhmmss]]) // library marker replica.samsungOvenCommon, line 193
+	} // library marker replica.samsungOvenCommon, line 194
+} // library marker replica.samsungOvenCommon, line 195
 
-def stop() { // library marker replica.samsungOvenCommon, line 192
-	def hasAdvCap =  state.deviceCapabilities.contains("samsungce.ovenOperatingState") // library marker replica.samsungOvenCommon, line 193
-	Map cmdStatus = [hasAdvCap: hasAdvCap] // library marker replica.samsungOvenCommon, line 194
-	if (hasAdvCap) { // library marker replica.samsungOvenCommon, line 195
-		cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 196
-									"samsungce.ovenOperatingState", "stop") // library marker replica.samsungOvenCommon, line 197
-	} else { // library marker replica.samsungOvenCommon, line 198
-		cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 199
-									"ovenOperatingState", "stop") // library marker replica.samsungOvenCommon, line 200
-	} // library marker replica.samsungOvenCommon, line 201
-	logInfo("stop: ${cmdStatus}") // library marker replica.samsungOvenCommon, line 202
-} // library marker replica.samsungOvenCommon, line 203
+def stop() { // library marker replica.samsungOvenCommon, line 197
+	def hasAdvCap =  state.deviceCapabilities.contains("samsungce.ovenOperatingState") // library marker replica.samsungOvenCommon, line 198
+	Map cmdStatus = [hasAdvCap: hasAdvCap] // library marker replica.samsungOvenCommon, line 199
+	if (hasAdvCap) { // library marker replica.samsungOvenCommon, line 200
+		cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 201
+									"samsungce.ovenOperatingState", "stop") // library marker replica.samsungOvenCommon, line 202
+	} else { // library marker replica.samsungOvenCommon, line 203
+		cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 204
+									"ovenOperatingState", "stop") // library marker replica.samsungOvenCommon, line 205
+	} // library marker replica.samsungOvenCommon, line 206
+	logInfo("stop: ${cmdStatus}") // library marker replica.samsungOvenCommon, line 207
+} // library marker replica.samsungOvenCommon, line 208
 
-def pause() { // library marker replica.samsungOvenCommon, line 205
-	def hasAdvCap =  state.deviceCapabilities.contains("samsungce.ovenOperatingState") // library marker replica.samsungOvenCommon, line 206
-	Map cmdStatus = [hasAdvCap: hasAdvCap] // library marker replica.samsungOvenCommon, line 207
-	if (hasAdvCap) { // library marker replica.samsungOvenCommon, line 208
-		cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 209
-									"samsungce.ovenOperatingState", "pause") // library marker replica.samsungOvenCommon, line 210
-		runIn(10, checkAttribute, [data: ["pause", "operatingState", "paused"]]) // library marker replica.samsungOvenCommon, line 211
-	} else { // library marker replica.samsungOvenCommon, line 212
-		cmdStatus << [FAILED: "pause not available on device"] // library marker replica.samsungOvenCommon, line 213
-	} // library marker replica.samsungOvenCommon, line 214
-	logInfo("pause: ${cmdStatus}") // library marker replica.samsungOvenCommon, line 215
-} // library marker replica.samsungOvenCommon, line 216
+def pause() { // library marker replica.samsungOvenCommon, line 210
+	def hasAdvCap =  state.deviceCapabilities.contains("samsungce.ovenOperatingState") // library marker replica.samsungOvenCommon, line 211
+	Map cmdStatus = [hasAdvCap: hasAdvCap] // library marker replica.samsungOvenCommon, line 212
+	if (hasAdvCap) { // library marker replica.samsungOvenCommon, line 213
+		cmdStatus << sendRawCommand(getDataValue("componentId"),  // library marker replica.samsungOvenCommon, line 214
+									"samsungce.ovenOperatingState", "pause") // library marker replica.samsungOvenCommon, line 215
+		runIn(10, checkAttribute, [data: ["pause", "operatingState", "paused"]]) // library marker replica.samsungOvenCommon, line 216
+	} else { // library marker replica.samsungOvenCommon, line 217
+		cmdStatus << [FAILED: "pause not available on device"] // library marker replica.samsungOvenCommon, line 218
+	} // library marker replica.samsungOvenCommon, line 219
+	logInfo("pause: ${cmdStatus}") // library marker replica.samsungOvenCommon, line 220
+} // library marker replica.samsungOvenCommon, line 221
 
-def start(mode = null, opTime = null, setpoint = null) { // library marker replica.samsungOvenCommon, line 218
-	def hasAdvCap =  state.deviceCapabilities.contains("samsungce.ovenOperatingState") // library marker replica.samsungOvenCommon, line 219
-	Map cmdStatus = [hasAdvCap: hasAdvCap, input:  // library marker replica.samsungOvenCommon, line 220
-					 [mode: mode, opTime: opTime, setpoint: setpoint]] // library marker replica.samsungOvenCommon, line 221
-	if (hasAdvCap) { // library marker replica.samsungOvenCommon, line 222
-		if (mode != null) { // library marker replica.samsungOvenCommon, line 223
-			setOvenMode(mode) // library marker replica.samsungOvenCommon, line 224
-			pauseExecution(2000) // library marker replica.samsungOvenCommon, line 225
-		} // library marker replica.samsungOvenCommon, line 226
-		if (setpoint != null) { // library marker replica.samsungOvenCommon, line 227
-			setOvenSetpoint(setpoint) // library marker replica.samsungOvenCommon, line 228
-			pauseExecution(2000) // library marker replica.samsungOvenCommon, line 229
-		} // library marker replica.samsungOvenCommon, line 230
-		if (opTime != null) { // library marker replica.samsungOvenCommon, line 231
-			setOperationTime(opTime) // library marker replica.samsungOvenCommon, line 232
-			pauseExecution(2000) // library marker replica.samsungOvenCommon, line 233
-		} // library marker replica.samsungOvenCommon, line 234
-		cmdStatus << sendRawCommand(getDataValue("componentId"), // library marker replica.samsungOvenCommon, line 235
-									"samsungce.ovenOperatingState", "start", []) // library marker replica.samsungOvenCommon, line 236
-		runIn(10, checkAttribute, [data: ["start", "operatingState", "running"]]) // library marker replica.samsungOvenCommon, line 237
-	} else { // library marker replica.samsungOvenCommon, line 238
-		Map opCmd = [:] // library marker replica.samsungOvenCommon, line 239
-		def failed = false // library marker replica.samsungOvenCommon, line 240
-		if (mode != null) { // library marker replica.samsungOvenCommon, line 241
-			def ovenMode = checkMode(mode) // library marker replica.samsungOvenCommon, line 242
-			cmdStatus << [cmdMode: ovenMode] // library marker replica.samsungOvenCommon, line 243
-			opCmd << [mode: ovenMode] // library marker replica.samsungOvenCommon, line 244
-			if (ovenMode == "notSupported") { // library marker replica.samsungOvenCommon, line 245
-				failed = true // library marker replica.samsungOvenCommon, line 246
-			} // library marker replica.samsungOvenCommon, line 247
-		} // library marker replica.samsungOvenCommon, line 248
-		if (opTime != null) { // library marker replica.samsungOvenCommon, line 249
-			opTime = formatTime(opTime, "seconds", "setOperationTime") // library marker replica.samsungOvenCommon, line 250
-			cmdStatus << [cmdOpTime: opTime] // library marker replica.samsungOvenCommon, line 251
-			opCmd << [time: opTime] // library marker replica.samsungOvenCommon, line 252
-			if (opTime == "invalidEntry") { // library marker replica.samsungOvenCommon, line 253
-				failed = true // library marker replica.samsungOvenCommon, line 254
-			} // library marker replica.samsungOvenCommon, line 255
-		} // library marker replica.samsungOvenCommon, line 256
-		if (setpoint != null) { // library marker replica.samsungOvenCommon, line 257
-			setpoint = setpoint.toInteger() // library marker replica.samsungOvenCommon, line 258
-			cmdStatus << [cmdSetpoint: setpoint] // library marker replica.samsungOvenCommon, line 259
-			opCmd << [setpoint: setpoint] // library marker replica.samsungOvenCommon, line 260
-			if (setpoint < 0) { // library marker replica.samsungOvenCommon, line 261
-				failed = true // library marker replica.samsungOvenCommon, line 262
-			} // library marker replica.samsungOvenCommon, line 263
-		} // library marker replica.samsungOvenCommon, line 264
-		if (failed == false) { // library marker replica.samsungOvenCommon, line 265
-			cmdStatus << sendRawCommand(getDataValue("componentId"), // library marker replica.samsungOvenCommon, line 266
-										"ovenOperatingState", "start", [opCmd]) // library marker replica.samsungOvenCommon, line 267
-			runIn(10, checkAttribute, [data: ["start", "operatingState", "running"]]) // library marker replica.samsungOvenCommon, line 268
-		} else { // library marker replica.samsungOvenCommon, line 269
-			cmdStatus << [FAILED: "invalidInput"] // library marker replica.samsungOvenCommon, line 270
-		} // library marker replica.samsungOvenCommon, line 271
-	} // library marker replica.samsungOvenCommon, line 272
-	logInfo("start: ${cmdStatus}") // library marker replica.samsungOvenCommon, line 273
-} // library marker replica.samsungOvenCommon, line 274
+def start(mode = null, opTime = null, setpoint = null) { // library marker replica.samsungOvenCommon, line 223
+	def hasAdvCap =  state.deviceCapabilities.contains("samsungce.ovenOperatingState") // library marker replica.samsungOvenCommon, line 224
+	Map cmdStatus = [hasAdvCap: hasAdvCap, input:  // library marker replica.samsungOvenCommon, line 225
+					 [mode: mode, opTime: opTime, setpoint: setpoint]] // library marker replica.samsungOvenCommon, line 226
+	if (hasAdvCap) { // library marker replica.samsungOvenCommon, line 227
+		if (mode != null) { // library marker replica.samsungOvenCommon, line 228
+			setOvenMode(mode) // library marker replica.samsungOvenCommon, line 229
+			pauseExecution(2000) // library marker replica.samsungOvenCommon, line 230
+		} // library marker replica.samsungOvenCommon, line 231
+		if (setpoint != null) { // library marker replica.samsungOvenCommon, line 232
+			setOvenSetpoint(setpoint) // library marker replica.samsungOvenCommon, line 233
+			pauseExecution(2000) // library marker replica.samsungOvenCommon, line 234
+		} // library marker replica.samsungOvenCommon, line 235
+		if (opTime != null) { // library marker replica.samsungOvenCommon, line 236
+			setOperationTime(opTime) // library marker replica.samsungOvenCommon, line 237
+			pauseExecution(2000) // library marker replica.samsungOvenCommon, line 238
+		} // library marker replica.samsungOvenCommon, line 239
+		cmdStatus << sendRawCommand(getDataValue("componentId"), // library marker replica.samsungOvenCommon, line 240
+									"samsungce.ovenOperatingState", "start", []) // library marker replica.samsungOvenCommon, line 241
+		runIn(10, checkAttribute, [data: ["start", "operatingState", "running"]]) // library marker replica.samsungOvenCommon, line 242
+	} else { // library marker replica.samsungOvenCommon, line 243
+		Map opCmd = [:] // library marker replica.samsungOvenCommon, line 244
+		def failed = false // library marker replica.samsungOvenCommon, line 245
+		if (mode != null) { // library marker replica.samsungOvenCommon, line 246
+			def ovenMode = checkMode(mode) // library marker replica.samsungOvenCommon, line 247
+			cmdStatus << [cmdMode: ovenMode] // library marker replica.samsungOvenCommon, line 248
+			opCmd << [mode: ovenMode] // library marker replica.samsungOvenCommon, line 249
+			if (ovenMode == "notSupported") { // library marker replica.samsungOvenCommon, line 250
+				failed = true // library marker replica.samsungOvenCommon, line 251
+			} // library marker replica.samsungOvenCommon, line 252
+		} // library marker replica.samsungOvenCommon, line 253
+		if (opTime != null) { // library marker replica.samsungOvenCommon, line 254
+			opTime = formatTime(opTime, "seconds", "setOperationTime") // library marker replica.samsungOvenCommon, line 255
+			cmdStatus << [cmdOpTime: opTime] // library marker replica.samsungOvenCommon, line 256
+			opCmd << [time: opTime] // library marker replica.samsungOvenCommon, line 257
+			if (opTime == "invalidEntry") { // library marker replica.samsungOvenCommon, line 258
+				failed = true // library marker replica.samsungOvenCommon, line 259
+			} // library marker replica.samsungOvenCommon, line 260
+		} // library marker replica.samsungOvenCommon, line 261
+		if (setpoint != null) { // library marker replica.samsungOvenCommon, line 262
+			setpoint = setpoint.toInteger() // library marker replica.samsungOvenCommon, line 263
+			cmdStatus << [cmdSetpoint: setpoint] // library marker replica.samsungOvenCommon, line 264
+			opCmd << [setpoint: setpoint] // library marker replica.samsungOvenCommon, line 265
+			if (setpoint < 0) { // library marker replica.samsungOvenCommon, line 266
+				failed = true // library marker replica.samsungOvenCommon, line 267
+			} // library marker replica.samsungOvenCommon, line 268
+		} // library marker replica.samsungOvenCommon, line 269
+		if (failed == false) { // library marker replica.samsungOvenCommon, line 270
+			cmdStatus << sendRawCommand(getDataValue("componentId"), // library marker replica.samsungOvenCommon, line 271
+										"ovenOperatingState", "start", [opCmd]) // library marker replica.samsungOvenCommon, line 272
+			runIn(10, checkAttribute, [data: ["start", "operatingState", "running"]]) // library marker replica.samsungOvenCommon, line 273
+		} else { // library marker replica.samsungOvenCommon, line 274
+			cmdStatus << [FAILED: "invalidInput"] // library marker replica.samsungOvenCommon, line 275
+		} // library marker replica.samsungOvenCommon, line 276
+	} // library marker replica.samsungOvenCommon, line 277
+	logInfo("start: ${cmdStatus}") // library marker replica.samsungOvenCommon, line 278
+} // library marker replica.samsungOvenCommon, line 279
 
-def checkAttribute(setCommand, attrName, attrValue) { // library marker replica.samsungOvenCommon, line 276
-	def checkValue = device.currentValue(attrName).toString() // library marker replica.samsungOvenCommon, line 277
-	if (checkValue != attrValue.toString()) { // library marker replica.samsungOvenCommon, line 278
-		Map warnTxt = [command: setCommand, // library marker replica.samsungOvenCommon, line 279
-					   attribute: attrName, // library marker replica.samsungOvenCommon, line 280
-					   checkValue: checkValue, // library marker replica.samsungOvenCommon, line 281
-					   attrValue: attrValue, // library marker replica.samsungOvenCommon, line 282
-					   failed: "Function may be disabled by SmartThings"] // library marker replica.samsungOvenCommon, line 283
-		logWarn("checkAttribute: ${warnTxt}") // library marker replica.samsungOvenCommon, line 284
-	} // library marker replica.samsungOvenCommon, line 285
-} // library marker replica.samsungOvenCommon, line 286
+def checkAttribute(setCommand, attrName, attrValue) { // library marker replica.samsungOvenCommon, line 281
+	def checkValue = device.currentValue(attrName).toString() // library marker replica.samsungOvenCommon, line 282
+	if (checkValue != attrValue.toString()) { // library marker replica.samsungOvenCommon, line 283
+		Map warnTxt = [command: setCommand, // library marker replica.samsungOvenCommon, line 284
+					   attribute: attrName, // library marker replica.samsungOvenCommon, line 285
+					   checkValue: checkValue, // library marker replica.samsungOvenCommon, line 286
+					   attrValue: attrValue, // library marker replica.samsungOvenCommon, line 287
+					   failed: "Function may be disabled by SmartThings"] // library marker replica.samsungOvenCommon, line 288
+		logWarn("checkAttribute: ${warnTxt}") // library marker replica.samsungOvenCommon, line 289
+	} // library marker replica.samsungOvenCommon, line 290
+} // library marker replica.samsungOvenCommon, line 291
 
-def formatTime(timeValue, desiredFormat, callMethod) { // library marker replica.samsungOvenCommon, line 288
-	timeValue = timeValue.toString() // library marker replica.samsungOvenCommon, line 289
-	def currentFormat = "seconds" // library marker replica.samsungOvenCommon, line 290
-	if (timeValue.contains(":")) { // library marker replica.samsungOvenCommon, line 291
-		currentFormat = "hhmmss" // library marker replica.samsungOvenCommon, line 292
-	} // library marker replica.samsungOvenCommon, line 293
-	def formatedTime // library marker replica.samsungOvenCommon, line 294
-	if (currentFormat == "hhmmss") { // library marker replica.samsungOvenCommon, line 295
-		formatedTime = formatHhmmss(timeValue) // library marker replica.samsungOvenCommon, line 296
-		if (desiredFormat == "seconds") { // library marker replica.samsungOvenCommon, line 297
-			formatedTime = convertHhMmSsToInt(formatedTime) // library marker replica.samsungOvenCommon, line 298
-		} // library marker replica.samsungOvenCommon, line 299
-	} else { // library marker replica.samsungOvenCommon, line 300
-		formatedTime = timeValue // library marker replica.samsungOvenCommon, line 301
-		if (desiredFormat == "hhmmss") { // library marker replica.samsungOvenCommon, line 302
-			formatedTime = convertIntToHhMmSs(timeValue) // library marker replica.samsungOvenCommon, line 303
+def formatTime(timeValue, desiredFormat, callMethod) { // library marker replica.samsungOvenCommon, line 293
+	timeValue = timeValue.toString() // library marker replica.samsungOvenCommon, line 294
+	def currentFormat = "seconds" // library marker replica.samsungOvenCommon, line 295
+	if (timeValue.contains(":")) { // library marker replica.samsungOvenCommon, line 296
+		currentFormat = "hhmmss" // library marker replica.samsungOvenCommon, line 297
+	} // library marker replica.samsungOvenCommon, line 298
+	def formatedTime // library marker replica.samsungOvenCommon, line 299
+	if (currentFormat == "hhmmss") { // library marker replica.samsungOvenCommon, line 300
+		formatedTime = formatHhmmss(timeValue) // library marker replica.samsungOvenCommon, line 301
+		if (desiredFormat == "seconds") { // library marker replica.samsungOvenCommon, line 302
+			formatedTime = convertHhMmSsToInt(formatedTime) // library marker replica.samsungOvenCommon, line 303
 		} // library marker replica.samsungOvenCommon, line 304
-	} // library marker replica.samsungOvenCommon, line 305
-	if (formatedTime == "invalidEntry") { // library marker replica.samsungOvenCommon, line 306
-		Map errorData = [callMethod: callMethod, timeValue: timeValue, // library marker replica.samsungOvenCommon, line 307
-						 desiredFormat: desiredFormat] // library marker replica.samsungOvenCommon, line 308
-		logWarn("formatTime: [error: ${formatedTime}, data: ${errorData}") // library marker replica.samsungOvenCommon, line 309
+	} else { // library marker replica.samsungOvenCommon, line 305
+		formatedTime = timeValue // library marker replica.samsungOvenCommon, line 306
+		if (desiredFormat == "hhmmss") { // library marker replica.samsungOvenCommon, line 307
+			formatedTime = convertIntToHhMmSs(timeValue) // library marker replica.samsungOvenCommon, line 308
+		} // library marker replica.samsungOvenCommon, line 309
 	} // library marker replica.samsungOvenCommon, line 310
-	return formatedTime // library marker replica.samsungOvenCommon, line 311
-} // library marker replica.samsungOvenCommon, line 312
+	if (formatedTime == "invalidEntry") { // library marker replica.samsungOvenCommon, line 311
+		Map errorData = [callMethod: callMethod, timeValue: timeValue, // library marker replica.samsungOvenCommon, line 312
+						 desiredFormat: desiredFormat] // library marker replica.samsungOvenCommon, line 313
+		logWarn("formatTime: [error: ${formatedTime}, data: ${errorData}") // library marker replica.samsungOvenCommon, line 314
+	} // library marker replica.samsungOvenCommon, line 315
+	return formatedTime // library marker replica.samsungOvenCommon, line 316
+} // library marker replica.samsungOvenCommon, line 317
 
-def formatHhmmss(timeValue) { // library marker replica.samsungOvenCommon, line 314
-	def timeArray = timeValue.split(":") // library marker replica.samsungOvenCommon, line 315
-	def hours = 0 // library marker replica.samsungOvenCommon, line 316
-	def minutes = 0 // library marker replica.samsungOvenCommon, line 317
-	def seconds = 0 // library marker replica.samsungOvenCommon, line 318
-	if (timeArray.size() != timeValue.count(":") + 1) { // library marker replica.samsungOvenCommon, line 319
-		return "invalidEntry" // library marker replica.samsungOvenCommon, line 320
-	} else { // library marker replica.samsungOvenCommon, line 321
-		try { // library marker replica.samsungOvenCommon, line 322
-			if (timeArray.size() == 3) { // library marker replica.samsungOvenCommon, line 323
-				hours = timeArray[0].toInteger() // library marker replica.samsungOvenCommon, line 324
-				minutes = timeArray[1].toInteger() // library marker replica.samsungOvenCommon, line 325
-				seconds = timeArray[2].toInteger() // library marker replica.samsungOvenCommon, line 326
-			} else if (timeArray.size() == 2) { // library marker replica.samsungOvenCommon, line 327
-				minutes = timeArray[0].toInteger() // library marker replica.samsungOvenCommon, line 328
-				seconds = timeArray[1].toInteger() // library marker replica.samsungOvenCommon, line 329
-			} // library marker replica.samsungOvenCommon, line 330
-		} catch (error) { // library marker replica.samsungOvenCommon, line 331
-			return "invalidEntry" // library marker replica.samsungOvenCommon, line 332
-		} // library marker replica.samsungOvenCommon, line 333
-	} // library marker replica.samsungOvenCommon, line 334
-	if (hours < 10) { hours = "0${hours}" } // library marker replica.samsungOvenCommon, line 335
-	if (minutes < 10) { minutes = "0${minutes}" } // library marker replica.samsungOvenCommon, line 336
-	if (seconds < 10) { seconds = "0${seconds}" } // library marker replica.samsungOvenCommon, line 337
-	return "${hours}:${minutes}:${seconds}" // library marker replica.samsungOvenCommon, line 338
-} // library marker replica.samsungOvenCommon, line 339
+def formatHhmmss(timeValue) { // library marker replica.samsungOvenCommon, line 319
+	def timeArray = timeValue.split(":") // library marker replica.samsungOvenCommon, line 320
+	def hours = 0 // library marker replica.samsungOvenCommon, line 321
+	def minutes = 0 // library marker replica.samsungOvenCommon, line 322
+	def seconds = 0 // library marker replica.samsungOvenCommon, line 323
+	if (timeArray.size() != timeValue.count(":") + 1) { // library marker replica.samsungOvenCommon, line 324
+		return "invalidEntry" // library marker replica.samsungOvenCommon, line 325
+	} else { // library marker replica.samsungOvenCommon, line 326
+		try { // library marker replica.samsungOvenCommon, line 327
+			if (timeArray.size() == 3) { // library marker replica.samsungOvenCommon, line 328
+				hours = timeArray[0].toInteger() // library marker replica.samsungOvenCommon, line 329
+				minutes = timeArray[1].toInteger() // library marker replica.samsungOvenCommon, line 330
+				seconds = timeArray[2].toInteger() // library marker replica.samsungOvenCommon, line 331
+			} else if (timeArray.size() == 2) { // library marker replica.samsungOvenCommon, line 332
+				minutes = timeArray[0].toInteger() // library marker replica.samsungOvenCommon, line 333
+				seconds = timeArray[1].toInteger() // library marker replica.samsungOvenCommon, line 334
+			} // library marker replica.samsungOvenCommon, line 335
+		} catch (error) { // library marker replica.samsungOvenCommon, line 336
+			return "invalidEntry" // library marker replica.samsungOvenCommon, line 337
+		} // library marker replica.samsungOvenCommon, line 338
+	} // library marker replica.samsungOvenCommon, line 339
+	if (hours < 10) { hours = "0${hours}" } // library marker replica.samsungOvenCommon, line 340
+	if (minutes < 10) { minutes = "0${minutes}" } // library marker replica.samsungOvenCommon, line 341
+	if (seconds < 10) { seconds = "0${seconds}" } // library marker replica.samsungOvenCommon, line 342
+	return "${hours}:${minutes}:${seconds}" // library marker replica.samsungOvenCommon, line 343
+} // library marker replica.samsungOvenCommon, line 344
 
-def convertIntToHhMmSs(timeSeconds) { // library marker replica.samsungOvenCommon, line 341
-	def hhmmss // library marker replica.samsungOvenCommon, line 342
-	try { // library marker replica.samsungOvenCommon, line 343
-		hhmmss = new GregorianCalendar( 0, 0, 0, 0, 0, timeSeconds.toInteger(), 0 ).time.format( 'HH:mm:ss' ) // library marker replica.samsungOvenCommon, line 344
-	} catch (error) { // library marker replica.samsungOvenCommon, line 345
-		hhmmss = "invalidEntry" // library marker replica.samsungOvenCommon, line 346
-	} // library marker replica.samsungOvenCommon, line 347
-	return hhmmss // library marker replica.samsungOvenCommon, line 348
-} // library marker replica.samsungOvenCommon, line 349
+def convertIntToHhMmSs(timeSeconds) { // library marker replica.samsungOvenCommon, line 346
+	def hhmmss // library marker replica.samsungOvenCommon, line 347
+	try { // library marker replica.samsungOvenCommon, line 348
+		hhmmss = new GregorianCalendar( 0, 0, 0, 0, 0, timeSeconds.toInteger(), 0 ).time.format( 'HH:mm:ss' ) // library marker replica.samsungOvenCommon, line 349
+	} catch (error) { // library marker replica.samsungOvenCommon, line 350
+		hhmmss = "invalidEntry" // library marker replica.samsungOvenCommon, line 351
+	} // library marker replica.samsungOvenCommon, line 352
+	return hhmmss // library marker replica.samsungOvenCommon, line 353
+} // library marker replica.samsungOvenCommon, line 354
 
-def convertHhMmSsToInt(timeValue) { // library marker replica.samsungOvenCommon, line 351
-	def timeArray = timeValue.split(":") // library marker replica.samsungOvenCommon, line 352
-	def seconds = 0 // library marker replica.samsungOvenCommon, line 353
-	if (timeArray.size() != timeValue.count(":") + 1) { // library marker replica.samsungOvenCommon, line 354
-		return "invalidEntry" // library marker replica.samsungOvenCommon, line 355
-	} else { // library marker replica.samsungOvenCommon, line 356
-		try { // library marker replica.samsungOvenCommon, line 357
-			if (timeArray.size() == 3) { // library marker replica.samsungOvenCommon, line 358
-				seconds = timeArray[0].toInteger() * 3600 + // library marker replica.samsungOvenCommon, line 359
-				timeArray[1].toInteger() * 60 + timeArray[2].toInteger() // library marker replica.samsungOvenCommon, line 360
-			} else if (timeArray.size() == 2) { // library marker replica.samsungOvenCommon, line 361
-				seconds = timeArray[0].toInteger() * 60 + timeArray[1].toInteger() // library marker replica.samsungOvenCommon, line 362
-			} // library marker replica.samsungOvenCommon, line 363
-		} catch (error) { // library marker replica.samsungOvenCommon, line 364
-			seconds = "invalidEntry" // library marker replica.samsungOvenCommon, line 365
-		} // library marker replica.samsungOvenCommon, line 366
-	} // library marker replica.samsungOvenCommon, line 367
-	return seconds // library marker replica.samsungOvenCommon, line 368
-} // library marker replica.samsungOvenCommon, line 369
+def convertHhMmSsToInt(timeValue) { // library marker replica.samsungOvenCommon, line 356
+	def timeArray = timeValue.split(":") // library marker replica.samsungOvenCommon, line 357
+	def seconds = 0 // library marker replica.samsungOvenCommon, line 358
+	if (timeArray.size() != timeValue.count(":") + 1) { // library marker replica.samsungOvenCommon, line 359
+		return "invalidEntry" // library marker replica.samsungOvenCommon, line 360
+	} else { // library marker replica.samsungOvenCommon, line 361
+		try { // library marker replica.samsungOvenCommon, line 362
+			if (timeArray.size() == 3) { // library marker replica.samsungOvenCommon, line 363
+				seconds = timeArray[0].toInteger() * 3600 + // library marker replica.samsungOvenCommon, line 364
+				timeArray[1].toInteger() * 60 + timeArray[2].toInteger() // library marker replica.samsungOvenCommon, line 365
+			} else if (timeArray.size() == 2) { // library marker replica.samsungOvenCommon, line 366
+				seconds = timeArray[0].toInteger() * 60 + timeArray[1].toInteger() // library marker replica.samsungOvenCommon, line 367
+			} // library marker replica.samsungOvenCommon, line 368
+		} catch (error) { // library marker replica.samsungOvenCommon, line 369
+			seconds = "invalidEntry" // library marker replica.samsungOvenCommon, line 370
+		} // library marker replica.samsungOvenCommon, line 371
+	} // library marker replica.samsungOvenCommon, line 372
+	return seconds // library marker replica.samsungOvenCommon, line 373
+} // library marker replica.samsungOvenCommon, line 374
 
-// ~~~~~ end include (1276) replica.samsungOvenCommon ~~~~~
+// ~~~~~ end include (1307) replica.samsungOvenCommon ~~~~~
 
-// ~~~~~ start include (1252) replica.samsungReplicaChildCommon ~~~~~
+// ~~~~~ start include (1304) replica.samsungReplicaChildCommon ~~~~~
 library ( // library marker replica.samsungReplicaChildCommon, line 1
 	name: "samsungReplicaChildCommon", // library marker replica.samsungReplicaChildCommon, line 2
 	namespace: "replica", // library marker replica.samsungReplicaChildCommon, line 3
@@ -523,9 +504,9 @@ void parentEvent(Map event) { // library marker replica.samsungReplicaChildCommo
 //	===== Device Commands ===== // library marker replica.samsungReplicaChildCommon, line 57
 def refresh() { parent.refresh() } // library marker replica.samsungReplicaChildCommon, line 58
 
-// ~~~~~ end include (1252) replica.samsungReplicaChildCommon ~~~~~
+// ~~~~~ end include (1304) replica.samsungReplicaChildCommon ~~~~~
 
-// ~~~~~ start include (1072) davegut.Logging ~~~~~
+// ~~~~~ start include (1303) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -535,49 +516,55 @@ library ( // library marker davegut.Logging, line 1
 	documentationLink: "" // library marker davegut.Logging, line 7
 ) // library marker davegut.Logging, line 8
 
-//	Logging during development // library marker davegut.Logging, line 10
-def listAttributes(trace = false) { // library marker davegut.Logging, line 11
-	def attrs = device.getSupportedAttributes() // library marker davegut.Logging, line 12
-	def attrList = [:] // library marker davegut.Logging, line 13
-	attrs.each { // library marker davegut.Logging, line 14
-		def val = device.currentValue("${it}") // library marker davegut.Logging, line 15
-		attrList << ["${it}": val] // library marker davegut.Logging, line 16
-	} // library marker davegut.Logging, line 17
-	if (trace == true) { // library marker davegut.Logging, line 18
-		logInfo("Attributes: ${attrList}") // library marker davegut.Logging, line 19
-	} else { // library marker davegut.Logging, line 20
-		logDebug("Attributes: ${attrList}") // library marker davegut.Logging, line 21
-	} // library marker davegut.Logging, line 22
-} // library marker davegut.Logging, line 23
+preferences { // library marker davegut.Logging, line 10
+	input ("logEnable", "bool",  title: "Enable debug logging for 30 minutes", defaultValue: false) // library marker davegut.Logging, line 11
+	input ("infoLog", "bool", title: "Enable information logging${helpLogo()}",defaultValue: true) // library marker davegut.Logging, line 12
+	input ("traceLog", "bool", title: "Enable trace logging as directed by developer", defaultValue: false) // library marker davegut.Logging, line 13
+} // library marker davegut.Logging, line 14
 
-def logTrace(msg){ // library marker davegut.Logging, line 25
-	if (traceLog == true) { // library marker davegut.Logging, line 26
-		log.trace "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 27
+//	Logging during development // library marker davegut.Logging, line 16
+def listAttributes(trace = false) { // library marker davegut.Logging, line 17
+	def attrs = device.getSupportedAttributes() // library marker davegut.Logging, line 18
+	def attrList = [:] // library marker davegut.Logging, line 19
+	attrs.each { // library marker davegut.Logging, line 20
+		def val = device.currentValue("${it}") // library marker davegut.Logging, line 21
+		attrList << ["${it}": val] // library marker davegut.Logging, line 22
+	} // library marker davegut.Logging, line 23
+	if (trace == true) { // library marker davegut.Logging, line 24
+		logInfo("Attributes: ${attrList}") // library marker davegut.Logging, line 25
+	} else { // library marker davegut.Logging, line 26
+		logDebug("Attributes: ${attrList}") // library marker davegut.Logging, line 27
 	} // library marker davegut.Logging, line 28
 } // library marker davegut.Logging, line 29
 
-def traceLogOff() { // library marker davegut.Logging, line 31
-	device.updateSetting("traceLog", [type:"bool", value: false]) // library marker davegut.Logging, line 32
-	logInfo("traceLogOff") // library marker davegut.Logging, line 33
-} // library marker davegut.Logging, line 34
+def logTrace(msg){ // library marker davegut.Logging, line 31
+	if (traceLog == true) { // library marker davegut.Logging, line 32
+		log.trace "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 33
+	} // library marker davegut.Logging, line 34
+} // library marker davegut.Logging, line 35
 
-def logInfo(msg) {  // library marker davegut.Logging, line 36
-	if (textEnable || infoLog) { // library marker davegut.Logging, line 37
-		log.info "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 38
-	} // library marker davegut.Logging, line 39
+def traceLogOff() { // library marker davegut.Logging, line 37
+	device.updateSetting("traceLog", [type:"bool", value: false]) // library marker davegut.Logging, line 38
+	logInfo("traceLogOff") // library marker davegut.Logging, line 39
 } // library marker davegut.Logging, line 40
 
-def debugLogOff() { // library marker davegut.Logging, line 42
-	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 43
-	logInfo("debugLogOff") // library marker davegut.Logging, line 44
-} // library marker davegut.Logging, line 45
+def logInfo(msg) {  // library marker davegut.Logging, line 42
+	if (textEnable || infoLog) { // library marker davegut.Logging, line 43
+		log.info "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 44
+	} // library marker davegut.Logging, line 45
+} // library marker davegut.Logging, line 46
 
-def logDebug(msg) { // library marker davegut.Logging, line 47
-	if (logEnable || debugLog) { // library marker davegut.Logging, line 48
-		log.debug "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 49
-	} // library marker davegut.Logging, line 50
+def debugLogOff() { // library marker davegut.Logging, line 48
+	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 49
+	logInfo("debugLogOff") // library marker davegut.Logging, line 50
 } // library marker davegut.Logging, line 51
 
-def logWarn(msg) { log.warn "${device.displayName}-${driverVer()}: ${msg}" } // library marker davegut.Logging, line 53
+def logDebug(msg) { // library marker davegut.Logging, line 53
+	if (logEnable || debugLog) { // library marker davegut.Logging, line 54
+		log.debug "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 55
+	} // library marker davegut.Logging, line 56
+} // library marker davegut.Logging, line 57
 
-// ~~~~~ end include (1072) davegut.Logging ~~~~~
+def logWarn(msg) { log.warn "${device.displayName}-${driverVer()}: ${msg}" } // library marker davegut.Logging, line 59
+
+// ~~~~~ end include (1303) davegut.Logging ~~~~~

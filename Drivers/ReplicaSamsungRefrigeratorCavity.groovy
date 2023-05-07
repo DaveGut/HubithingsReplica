@@ -1,6 +1,6 @@
 /*	HubiThings Replica Samsung Refrigerator cavity Driver
 	HubiThings Replica Applications Copyright 2023 by Bloodtick
-	Copyright 2023 by Dave Gutheinz
+	HubiThings Replica Samsung Refrigerator cavity Copyright 2023 by Dave Gutheinz
 
 	Licensed under the Apache License, Version 2.0 (the "License"); 
 	you may not use this file except in compliance with the License.
@@ -12,11 +12,10 @@
 	implied. See the License for the specific language governing 
 	permissions and limitations under the License.
 
-Issues with this driver: Contact davegut via Private Message on the
-Hubitat Community site: https://community.hubitat.com/
+	See parent driver for added information.
 ==========================================================================*/
 import groovy.json.JsonSlurper
-def driverVer() { return "1.0" }
+def driverVer() { return "1.0-1" }
 def appliance() { return "ReplicaSamsungRefrigeratorCavity" }
 
 metadata {
@@ -34,14 +33,11 @@ metadata {
 		attribute "fridgeMode", "string"
 	}
 	preferences {
-		input ("logEnable", "bool",  title: "Enable debug logging for 30 minutes", defaultValue: false)
-		input ("infoLog", "bool", title: "Enable information logging${helpLogo()}",defaultValue: true)
-		input ("traceLog", "bool", title: "Enable trace logging as directed by developer", defaultValue: false)
 	}
 }
 
 String helpLogo() {
-	return """<a href="https://github.com/DaveGut/HubitatActive/blob/master/HubiThingsReplica/Docs/SamsungRefrigeratorReadme.md">""" +
+	return """<a href="https://github.com/DaveGut/HubithingsReplica/blob/main/Docs/SamsungRefrigeratorReadme.md">""" +
 		"""<div style="position: absolute; top: 20px; right: 150px; height: 80px; font-size: 28px;">Refrigerator Help</div></a>"""
 }
 
@@ -201,7 +197,7 @@ def setCoolingSetpoint(setpoint = device.currentValue("coolingSetpoint")) {
 //	===== Libraries =====
 
 
-// ~~~~~ start include (1072) davegut.Logging ~~~~~
+// ~~~~~ start include (1303) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -211,49 +207,55 @@ library ( // library marker davegut.Logging, line 1
 	documentationLink: "" // library marker davegut.Logging, line 7
 ) // library marker davegut.Logging, line 8
 
-//	Logging during development // library marker davegut.Logging, line 10
-def listAttributes(trace = false) { // library marker davegut.Logging, line 11
-	def attrs = device.getSupportedAttributes() // library marker davegut.Logging, line 12
-	def attrList = [:] // library marker davegut.Logging, line 13
-	attrs.each { // library marker davegut.Logging, line 14
-		def val = device.currentValue("${it}") // library marker davegut.Logging, line 15
-		attrList << ["${it}": val] // library marker davegut.Logging, line 16
-	} // library marker davegut.Logging, line 17
-	if (trace == true) { // library marker davegut.Logging, line 18
-		logInfo("Attributes: ${attrList}") // library marker davegut.Logging, line 19
-	} else { // library marker davegut.Logging, line 20
-		logDebug("Attributes: ${attrList}") // library marker davegut.Logging, line 21
-	} // library marker davegut.Logging, line 22
-} // library marker davegut.Logging, line 23
+preferences { // library marker davegut.Logging, line 10
+	input ("logEnable", "bool",  title: "Enable debug logging for 30 minutes", defaultValue: false) // library marker davegut.Logging, line 11
+	input ("infoLog", "bool", title: "Enable information logging${helpLogo()}",defaultValue: true) // library marker davegut.Logging, line 12
+	input ("traceLog", "bool", title: "Enable trace logging as directed by developer", defaultValue: false) // library marker davegut.Logging, line 13
+} // library marker davegut.Logging, line 14
 
-def logTrace(msg){ // library marker davegut.Logging, line 25
-	if (traceLog == true) { // library marker davegut.Logging, line 26
-		log.trace "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 27
+//	Logging during development // library marker davegut.Logging, line 16
+def listAttributes(trace = false) { // library marker davegut.Logging, line 17
+	def attrs = device.getSupportedAttributes() // library marker davegut.Logging, line 18
+	def attrList = [:] // library marker davegut.Logging, line 19
+	attrs.each { // library marker davegut.Logging, line 20
+		def val = device.currentValue("${it}") // library marker davegut.Logging, line 21
+		attrList << ["${it}": val] // library marker davegut.Logging, line 22
+	} // library marker davegut.Logging, line 23
+	if (trace == true) { // library marker davegut.Logging, line 24
+		logInfo("Attributes: ${attrList}") // library marker davegut.Logging, line 25
+	} else { // library marker davegut.Logging, line 26
+		logDebug("Attributes: ${attrList}") // library marker davegut.Logging, line 27
 	} // library marker davegut.Logging, line 28
 } // library marker davegut.Logging, line 29
 
-def traceLogOff() { // library marker davegut.Logging, line 31
-	device.updateSetting("traceLog", [type:"bool", value: false]) // library marker davegut.Logging, line 32
-	logInfo("traceLogOff") // library marker davegut.Logging, line 33
-} // library marker davegut.Logging, line 34
+def logTrace(msg){ // library marker davegut.Logging, line 31
+	if (traceLog == true) { // library marker davegut.Logging, line 32
+		log.trace "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 33
+	} // library marker davegut.Logging, line 34
+} // library marker davegut.Logging, line 35
 
-def logInfo(msg) {  // library marker davegut.Logging, line 36
-	if (textEnable || infoLog) { // library marker davegut.Logging, line 37
-		log.info "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 38
-	} // library marker davegut.Logging, line 39
+def traceLogOff() { // library marker davegut.Logging, line 37
+	device.updateSetting("traceLog", [type:"bool", value: false]) // library marker davegut.Logging, line 38
+	logInfo("traceLogOff") // library marker davegut.Logging, line 39
 } // library marker davegut.Logging, line 40
 
-def debugLogOff() { // library marker davegut.Logging, line 42
-	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 43
-	logInfo("debugLogOff") // library marker davegut.Logging, line 44
-} // library marker davegut.Logging, line 45
+def logInfo(msg) {  // library marker davegut.Logging, line 42
+	if (textEnable || infoLog) { // library marker davegut.Logging, line 43
+		log.info "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 44
+	} // library marker davegut.Logging, line 45
+} // library marker davegut.Logging, line 46
 
-def logDebug(msg) { // library marker davegut.Logging, line 47
-	if (logEnable || debugLog) { // library marker davegut.Logging, line 48
-		log.debug "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 49
-	} // library marker davegut.Logging, line 50
+def debugLogOff() { // library marker davegut.Logging, line 48
+	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 49
+	logInfo("debugLogOff") // library marker davegut.Logging, line 50
 } // library marker davegut.Logging, line 51
 
-def logWarn(msg) { log.warn "${device.displayName}-${driverVer()}: ${msg}" } // library marker davegut.Logging, line 53
+def logDebug(msg) { // library marker davegut.Logging, line 53
+	if (logEnable || debugLog) { // library marker davegut.Logging, line 54
+		log.debug "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 55
+	} // library marker davegut.Logging, line 56
+} // library marker davegut.Logging, line 57
 
-// ~~~~~ end include (1072) davegut.Logging ~~~~~
+def logWarn(msg) { log.warn "${device.displayName}-${driverVer()}: ${msg}" } // library marker davegut.Logging, line 59
+
+// ~~~~~ end include (1303) davegut.Logging ~~~~~
