@@ -9,105 +9,105 @@
   "drivers": [
     {
       "id": "630578b4-20a9-4e92-bf81-0b394df80818",
-      "name": "Color Temperature",
+      "name": "CT Bulb",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaCTBulb.groovy",
       "required": false
     },
     {
       "id": "b97cc7e7-2278-4f99-a6b5-17fa3acd104b",
-      "name": "Color Temperature",
+      "name": "Color Bulb",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaColorBulb.groovy",
       "required": false
     },
     {
       "id": "b514be69-200c-44a8-9a02-cbf0dfec936a",
-      "name": "button",
+      "name": "Motion Sensing Doorbell",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaMotionSensingDoorbell.groovy",
       "required": false
     },
     {
       "id": "41c436db-cdf9-4276-83d6-4f223c23fa23",
-      "name": "parent*",
+      "name": "Dishwasher",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungDishwasher.groovy",
       "required": false
     },
     {
       "id": "bbcaa121-4d37-4aa4-aa6a-665e14407a0b",
-      "name": "samsungDryerCommon",
+      "name": "samsung Dryer",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungDryer.groovy",
       "required": false
     },
     {
       "id": "e772f699-e541-4fad-b6cd-72cab8c5a030",
-      "name": "samsungDryerCommon",
+      "name": "samsung Dryer Flex",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungDryerFlex.groovy",
       "required": false
     },
     {
       "id": "bf5aabf3-b102-4b5c-a363-da5576d2f6c9",
-      "name": "from state.supported BrightnessLevels",
+      "name": "Samsung Oven",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungOven.groovy",
       "required": false
     },
     {
       "id": "f08700ad-f71f-4ad5-b904-8a5f178c8013",
-      "name": "samsungOvenCommon",
+      "name": "Samsung Oven Cavity",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungOvenCavity.groovy",
       "required": false
     },
     {
       "id": "5c497dbe-b7ee-4694-bdac-018adc92a237",
-      "name": "Rapid Cooling",
+      "name": "Samsung Refrigerator",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungRefrigerator.groovy",
       "required": false
     },
     {
       "id": "767412d2-f896-4bdf-9047-fb681ba4908d",
-      "name": "coolingSetpoint",
+      "name": "Samsung Refrigerator Cavity",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungRefrigeratorCavity.groovy",
       "required": false
     },
     {
       "id": "f6d076db-976b-4264-bf5d-be0aa6bc65b8",
-      "name": "Logging",
+      "name": "Samsung Refrigerator Icemaker",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungRefrigeratorIcemaker.groovy",
       "required": false
     },
     {
       "id": "dabde16c-582d-4f10-bae8-2bf21b86c96b",
-      "name": "parent*",
+      "name": "Samsung Soundbar",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungSoundbar.groovy",
       "required": false
     },
     {
       "id": "cc1ba3b2-f197-438e-a3e3-aaf18ce9a5d5",
-      "name": "Not Implemented",
+      "name": "Samsung TV",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungTV.groovy",
       "required": false
     },
     {
       "id": "37fdfb5b-f189-480b-af1e-7b40696b4afc",
-      "name": "samsungWasherCommon",
+      "name": "Samsung Washer",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungWasher.groovy",
       "required": false
     },
     {
       "id": "5d772be1-d2b6-4485-bbf2-dabfc6a2c472",
-      "name": "samsungWasherCommon",
+      "name": "Samsung Washer Flex",
       "namespace": "replica",
       "location": "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/ReplicaSamsungWasherFlex.groovy",
       "required": false
