@@ -12,10 +12,17 @@
 	implied. See the License for the specific language governing 
 	permissions and limitations under the License.
 
+Changes:
+1.0-1:	
+a.	Changed link to help file and moved to library samsungWasherCommon
+b.	Added Flex as a child device.
+c.	Added logging prefs to library logging.
+d.	Changed sendRawCommand to use dataValue replica vice description.
+
 Issues with this driver: Contact davegut via Private Message on the
 Hubitat Community site: https://community.hubitat.com/
 ==========================================================================*/
-def driverVer() { return "1.0" }
+def driverVer() { return "1.0-1" }
 def appliance() { return "ReplicaSamsungWasher" }
 
 metadata {
@@ -25,34 +32,12 @@ metadata {
 				importUrl: "https://raw.githubusercontent.com/DaveGut/HubithingsReplica/main/Drivers/${appliance()}.groovy"
 			   ){
 		capability "Configuration"
-		capability "Refresh"
 		attribute "healthStatus", "enum", ["offline", "online"]
 		capability "Refresh"
-		attribute "switch", "string"
-		command "start"
-		command "pause"
-		command "stop"
-		attribute "machineState", "string"
-		attribute "lockState", "string"
-		attribute "remoteControlEnabled", "boolean"
-		attribute "completionTime", "string"
-		attribute "timeRemaining", "string"
-		attribute "washerWaterTemperature", "string"
-		attribute "washerJobState", "string"
-		attribute "washerSoilLevel", "string"
-		attribute "washerSpinLevel", "string"
 		attribute "jobBeginningStatus", "string"
 	}
 	preferences {
-		input ("logEnable", "bool",  title: "Enable debug logging for 30 minutes", defaultValue: false)
-		input ("infoLog", "bool", title: "Enable information logging${helpLogo()}",defaultValue: true)
-		input ("traceLog", "bool", title: "Enable trace logging as directed by developer", defaultValue: false)
 	}
-}
-
-String helpLogo() {
-	return """<a href="https://github.com/DaveGut/HubitatActive/blob/master/HubiThingsReplica/Docs/SamsungWasherReadme.md">""" +
-		"""<div style="position: absolute; top: 20px; right: 150px; height: 80px; font-size: 28px;">Washer Help</div></a>"""
 }
 
 //	===== Installation, setup and update =====
@@ -83,13 +68,13 @@ def designCapabilities() {
 			"custom.jobBeginningStatus"]
 }
 
-Map designChildren() { return [:] }
+Map designChildren() { return ["sub": "Flex"] }
 
 def sendRawCommand(component, capability, command, arguments = []) {
 	Map status = [:]
 	def rcEnabled = device.currentValue("remoteControlEnabled")
 	if (rcEnabled) {
-		def deviceId = new JSONObject(getDataValue("description")).deviceId
+		def deviceId = new JSONObject(getDataValue("replica")).deviceId
 		def cmdStatus = parent.setSmartDeviceCommand(deviceId, component, capability, command, arguments)
 		def cmdData = [component, capability, command, arguments, cmdStatus]
 		status << [cmdData: cmdData]
@@ -99,98 +84,123 @@ def sendRawCommand(component, capability, command, arguments = []) {
 	return status
 }
 
-//	===== Device Commands =====
-def start() { setMachineState("run") }
-def pause() { setMachineState("pause") }
-def stop() { setMachineState("stop") }
-def setMachineState(machState) {
-	def oldState = device.currentValue("machineState")
-	Map cmdStatus = [oldState: oldState, newState: machState]
-	if (oldState != machState) {
-		cmdStatus << sendRawCommand(getDataValue("componentId"), "washerOperatingState", 
-									"setMachineState", [machState])
-	} else {
-		cmdStatus << [FAILED: "no change in state"]
-		runIn(10, checkAttribute, [data: ["setMachineState", "machineState", machState]])
-	}
-	logInfo("setMachineState: ${cmdStatus}")
-}
-
-def checkAttribute(setCommand, attrName, attrValue) {
-	def checkValue = device.currentValue(attrName).toString()
-	if (checkValue != attrValue.toString()) {
-		Map warnTxt = [command: setCommand,
-					   attribute: attrName,
-					   checkValue: checkValue,
-					   attrValue: attrValue,
-					   failed: "Function not accepted by the device."]
-		logWarn("checkAttribute: ${warnTxt}")
-	}
-}
-
-def parseEvent(event) {
-	logDebug("parseEvent: <b>${event}</b>")
-	if (state.deviceCapabilities.contains(event.capability)) {
-		logTrace("parseEvent: <b>${event}</b>")
-		if (event.value != null) {
-			switch(event.attribute) {
-				case "completionTime":
-					setEvent(event)
-					def timeRemaining = calcTimeRemaining(event.value)
-					setEvent([attribute: "timeRemaining", value: timeRemaining, unit: null])
-					break
-				case "supportedMachineStates":
-				case "supportedWasherWaterTemperature":
-				case "supportedWasherSoilLevel":
-				case "supportedWasherSpinLevel":
-					break				
-				default:
-					setEvent(event)
-					break
-			}
-		}
-	}
-}
-
-def setState(event) {
-	def attribute = event.attribute
-	if (state."${attribute}" != event.value) {
-		state."${event.attribute}" = event.value
-		logInfo("setState: [event: ${event}]")
-	}
-}
-
-def setEvent(event) {
-	logTrace("<b>setEvent</b>: ${event}")
-	sendEvent(name: event.attribute, value: event.value, unit: event.unit)
-	if (device.currentValue(event.attribute).toString() != event.value.toString()) {
-		logInfo("setEvent: [event: ${event}]")
-	}
-}
-
-def calcTimeRemaining(completionTime) {
-	Integer currTime = now()
-	Integer compTime
-	try {
-		compTime = Date.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", completionTime,TimeZone.getTimeZone('UTC')).getTime()
-	} catch (e) {
-		compTime = Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", completionTime,TimeZone.getTimeZone('UTC')).getTime()
-	}
-	Integer timeRemaining = ((compTime-currTime) /1000).toInteger()
-	def hhmmss
-	if (timeRemaining < 0) {
-		hhmmss = "00:00:00"
-    } else {
-		hhmmss = new GregorianCalendar( 0, 0, 0, 0, 0, timeRemaining, 0 ).time.format( 'HH:mm:ss' )
-	}
-	return hhmmss
-}
-
 //	===== Libraries =====
 
 
 
-// ~~~~~ start include (1251) replica.samsungReplicaCommon ~~~~~
+
+// ~~~~~ start include (1311) replica.samsungWasherCommon ~~~~~
+library ( // library marker replica.samsungWasherCommon, line 1
+	name: "samsungWasherCommon", // library marker replica.samsungWasherCommon, line 2
+	namespace: "replica", // library marker replica.samsungWasherCommon, line 3
+	author: "Dave Gutheinz", // library marker replica.samsungWasherCommon, line 4
+	description: "Common Methods for replica Samsung Oven parent/children", // library marker replica.samsungWasherCommon, line 5
+	category: "utilities", // library marker replica.samsungWasherCommon, line 6
+	documentationLink: "" // library marker replica.samsungWasherCommon, line 7
+) // library marker replica.samsungWasherCommon, line 8
+//	===== Common Capabilities, Commands, and Attributes ===== // library marker replica.samsungWasherCommon, line 9
+capability "Refresh" // library marker replica.samsungWasherCommon, line 10
+attribute "remoteControlEnabled", "boolean" // library marker replica.samsungWasherCommon, line 11
+attribute "switch", "string" // library marker replica.samsungWasherCommon, line 12
+attribute "completionTime", "string" // library marker replica.samsungWasherCommon, line 13
+attribute "machineState", "string" // library marker replica.samsungWasherCommon, line 14
+attribute "washerJobState", "string" // library marker replica.samsungWasherCommon, line 15
+attribute "timeRemaining", "string" // library marker replica.samsungWasherCommon, line 16
+attribute "washerWaterTemperature", "string" // library marker replica.samsungWasherCommon, line 17
+attribute "washerSoilLevel", "string" // library marker replica.samsungWasherCommon, line 18
+attribute "washerSpinLevel", "string" // library marker replica.samsungWasherCommon, line 19
+attribute "lockState", "string" // library marker replica.samsungWasherCommon, line 20
+command "start" // library marker replica.samsungWasherCommon, line 21
+command "pause" // library marker replica.samsungWasherCommon, line 22
+command "stop" // library marker replica.samsungWasherCommon, line 23
+
+String helpLogo() { // library marker replica.samsungWasherCommon, line 25
+	return """<a href="https://github.com/DaveGut/HubithingsReplica/blob/main/Docs/SamsungWasherReadme.md">""" + // library marker replica.samsungWasherCommon, line 26
+		"""<div style="position: absolute; top: 20px; right: 150px; height: 80px; font-size: 28px;">Dryer Help</div></a>""" // library marker replica.samsungWasherCommon, line 27
+} // library marker replica.samsungWasherCommon, line 28
+
+//	===== Device Commands ===== // library marker replica.samsungWasherCommon, line 30
+def start() { setMachineState("run") } // library marker replica.samsungWasherCommon, line 31
+def pause() { setMachineState("pause") } // library marker replica.samsungWasherCommon, line 32
+def stop() { setMachineState("stop") } // library marker replica.samsungWasherCommon, line 33
+def setMachineState(machState) { // library marker replica.samsungWasherCommon, line 34
+	def oldState = device.currentValue("machineState") // library marker replica.samsungWasherCommon, line 35
+	Map cmdStatus = [oldState: oldState, newState: machState] // library marker replica.samsungWasherCommon, line 36
+	if (oldState != machState) { // library marker replica.samsungWasherCommon, line 37
+		cmdStatus << sendRawCommand(getDataValue("componentId"), "washerOperatingState",  // library marker replica.samsungWasherCommon, line 38
+									"setMachineState", [machState]) // library marker replica.samsungWasherCommon, line 39
+	} else { // library marker replica.samsungWasherCommon, line 40
+		cmdStatus << [FAILED: "no change in state"] // library marker replica.samsungWasherCommon, line 41
+		runIn(10, checkAttribute, [data: ["setMachineState", "machineState", machState]]) // library marker replica.samsungWasherCommon, line 42
+	} // library marker replica.samsungWasherCommon, line 43
+	logInfo("setMachineState: ${cmdStatus}") // library marker replica.samsungWasherCommon, line 44
+} // library marker replica.samsungWasherCommon, line 45
+
+def checkAttribute(setCommand, attrName, attrValue) { // library marker replica.samsungWasherCommon, line 47
+	def checkValue = device.currentValue(attrName).toString() // library marker replica.samsungWasherCommon, line 48
+	if (checkValue != attrValue.toString()) { // library marker replica.samsungWasherCommon, line 49
+		Map warnTxt = [command: setCommand, // library marker replica.samsungWasherCommon, line 50
+					   attribute: attrName, // library marker replica.samsungWasherCommon, line 51
+					   checkValue: checkValue, // library marker replica.samsungWasherCommon, line 52
+					   attrValue: attrValue, // library marker replica.samsungWasherCommon, line 53
+					   failed: "Function may be disabled by SmartThings"] // library marker replica.samsungWasherCommon, line 54
+		logWarn("checkAttribute: ${warnTxt}") // library marker replica.samsungWasherCommon, line 55
+	} // library marker replica.samsungWasherCommon, line 56
+} // library marker replica.samsungWasherCommon, line 57
+
+def parseEvent(event) { // library marker replica.samsungWasherCommon, line 59
+	logDebug("parseEvent: <b>${event}</b>") // library marker replica.samsungWasherCommon, line 60
+	if (state.deviceCapabilities.contains(event.capability)) { // library marker replica.samsungWasherCommon, line 61
+		logTrace("parseEvent: <b>${event}</b>") // library marker replica.samsungWasherCommon, line 62
+		if (event.value != null) { // library marker replica.samsungWasherCommon, line 63
+			switch(event.attribute) { // library marker replica.samsungWasherCommon, line 64
+				case "completionTime": // library marker replica.samsungWasherCommon, line 65
+					setEvent(event) // library marker replica.samsungWasherCommon, line 66
+					def timeRemaining = calcTimeRemaining(event.value) // library marker replica.samsungWasherCommon, line 67
+					setEvent([attribute: "timeRemaining", value: timeRemaining, unit: null]) // library marker replica.samsungWasherCommon, line 68
+					break // library marker replica.samsungWasherCommon, line 69
+				case "supportedMachineStates": // library marker replica.samsungWasherCommon, line 70
+				case "supportedWasherWaterTemperature": // library marker replica.samsungWasherCommon, line 71
+				case "supportedWasherSoilLevel": // library marker replica.samsungWasherCommon, line 72
+				case "supportedWasherSpinLevel": // library marker replica.samsungWasherCommon, line 73
+					break				 // library marker replica.samsungWasherCommon, line 74
+				default: // library marker replica.samsungWasherCommon, line 75
+					setEvent(event) // library marker replica.samsungWasherCommon, line 76
+					break // library marker replica.samsungWasherCommon, line 77
+			} // library marker replica.samsungWasherCommon, line 78
+		} // library marker replica.samsungWasherCommon, line 79
+	} // library marker replica.samsungWasherCommon, line 80
+} // library marker replica.samsungWasherCommon, line 81
+
+def setEvent(event) { // library marker replica.samsungWasherCommon, line 83
+	logTrace("<b>setEvent</b>: ${event}") // library marker replica.samsungWasherCommon, line 84
+	sendEvent(name: event.attribute, value: event.value, unit: event.unit) // library marker replica.samsungWasherCommon, line 85
+	if (device.currentValue(event.attribute).toString() != event.value.toString()) { // library marker replica.samsungWasherCommon, line 86
+		logInfo("setEvent: [event: ${event}]") // library marker replica.samsungWasherCommon, line 87
+	} // library marker replica.samsungWasherCommon, line 88
+} // library marker replica.samsungWasherCommon, line 89
+
+def calcTimeRemaining(completionTime) { // library marker replica.samsungWasherCommon, line 91
+	Integer currTime = now() // library marker replica.samsungWasherCommon, line 92
+	Integer compTime // library marker replica.samsungWasherCommon, line 93
+	try { // library marker replica.samsungWasherCommon, line 94
+		compTime = Date.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", completionTime,TimeZone.getTimeZone('UTC')).getTime() // library marker replica.samsungWasherCommon, line 95
+	} catch (e) { // library marker replica.samsungWasherCommon, line 96
+		compTime = Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", completionTime,TimeZone.getTimeZone('UTC')).getTime() // library marker replica.samsungWasherCommon, line 97
+	} // library marker replica.samsungWasherCommon, line 98
+	Integer timeRemaining = ((compTime-currTime) /1000).toInteger() // library marker replica.samsungWasherCommon, line 99
+	def hhmmss // library marker replica.samsungWasherCommon, line 100
+	if (timeRemaining < 0) { // library marker replica.samsungWasherCommon, line 101
+		hhmmss = "00:00:00" // library marker replica.samsungWasherCommon, line 102
+    } else { // library marker replica.samsungWasherCommon, line 103
+		hhmmss = new GregorianCalendar( 0, 0, 0, 0, 0, timeRemaining, 0 ).time.format( 'HH:mm:ss' ) // library marker replica.samsungWasherCommon, line 104
+	} // library marker replica.samsungWasherCommon, line 105
+	return hhmmss // library marker replica.samsungWasherCommon, line 106
+} // library marker replica.samsungWasherCommon, line 107
+
+// ~~~~~ end include (1311) replica.samsungWasherCommon ~~~~~
+
+// ~~~~~ start include (1305) replica.samsungReplicaCommon ~~~~~
 library ( // library marker replica.samsungReplicaCommon, line 1
 	name: "samsungReplicaCommon", // library marker replica.samsungReplicaCommon, line 2
 	namespace: "replica", // library marker replica.samsungReplicaCommon, line 3
@@ -376,9 +386,9 @@ def deviceRefresh() { // library marker replica.samsungReplicaCommon, line 182
 	sendCommand("deviceRefresh") // library marker replica.samsungReplicaCommon, line 183
 } // library marker replica.samsungReplicaCommon, line 184
 
-// ~~~~~ end include (1251) replica.samsungReplicaCommon ~~~~~
+// ~~~~~ end include (1305) replica.samsungReplicaCommon ~~~~~
 
-// ~~~~~ start include (1072) davegut.Logging ~~~~~
+// ~~~~~ start include (1303) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -388,49 +398,55 @@ library ( // library marker davegut.Logging, line 1
 	documentationLink: "" // library marker davegut.Logging, line 7
 ) // library marker davegut.Logging, line 8
 
-//	Logging during development // library marker davegut.Logging, line 10
-def listAttributes(trace = false) { // library marker davegut.Logging, line 11
-	def attrs = device.getSupportedAttributes() // library marker davegut.Logging, line 12
-	def attrList = [:] // library marker davegut.Logging, line 13
-	attrs.each { // library marker davegut.Logging, line 14
-		def val = device.currentValue("${it}") // library marker davegut.Logging, line 15
-		attrList << ["${it}": val] // library marker davegut.Logging, line 16
-	} // library marker davegut.Logging, line 17
-	if (trace == true) { // library marker davegut.Logging, line 18
-		logInfo("Attributes: ${attrList}") // library marker davegut.Logging, line 19
-	} else { // library marker davegut.Logging, line 20
-		logDebug("Attributes: ${attrList}") // library marker davegut.Logging, line 21
-	} // library marker davegut.Logging, line 22
-} // library marker davegut.Logging, line 23
+preferences { // library marker davegut.Logging, line 10
+	input ("logEnable", "bool",  title: "Enable debug logging for 30 minutes", defaultValue: false) // library marker davegut.Logging, line 11
+	input ("infoLog", "bool", title: "Enable information logging${helpLogo()}",defaultValue: true) // library marker davegut.Logging, line 12
+	input ("traceLog", "bool", title: "Enable trace logging as directed by developer", defaultValue: false) // library marker davegut.Logging, line 13
+} // library marker davegut.Logging, line 14
 
-def logTrace(msg){ // library marker davegut.Logging, line 25
-	if (traceLog == true) { // library marker davegut.Logging, line 26
-		log.trace "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 27
+//	Logging during development // library marker davegut.Logging, line 16
+def listAttributes(trace = false) { // library marker davegut.Logging, line 17
+	def attrs = device.getSupportedAttributes() // library marker davegut.Logging, line 18
+	def attrList = [:] // library marker davegut.Logging, line 19
+	attrs.each { // library marker davegut.Logging, line 20
+		def val = device.currentValue("${it}") // library marker davegut.Logging, line 21
+		attrList << ["${it}": val] // library marker davegut.Logging, line 22
+	} // library marker davegut.Logging, line 23
+	if (trace == true) { // library marker davegut.Logging, line 24
+		logInfo("Attributes: ${attrList}") // library marker davegut.Logging, line 25
+	} else { // library marker davegut.Logging, line 26
+		logDebug("Attributes: ${attrList}") // library marker davegut.Logging, line 27
 	} // library marker davegut.Logging, line 28
 } // library marker davegut.Logging, line 29
 
-def traceLogOff() { // library marker davegut.Logging, line 31
-	device.updateSetting("traceLog", [type:"bool", value: false]) // library marker davegut.Logging, line 32
-	logInfo("traceLogOff") // library marker davegut.Logging, line 33
-} // library marker davegut.Logging, line 34
+def logTrace(msg){ // library marker davegut.Logging, line 31
+	if (traceLog == true) { // library marker davegut.Logging, line 32
+		log.trace "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 33
+	} // library marker davegut.Logging, line 34
+} // library marker davegut.Logging, line 35
 
-def logInfo(msg) {  // library marker davegut.Logging, line 36
-	if (textEnable || infoLog) { // library marker davegut.Logging, line 37
-		log.info "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 38
-	} // library marker davegut.Logging, line 39
+def traceLogOff() { // library marker davegut.Logging, line 37
+	device.updateSetting("traceLog", [type:"bool", value: false]) // library marker davegut.Logging, line 38
+	logInfo("traceLogOff") // library marker davegut.Logging, line 39
 } // library marker davegut.Logging, line 40
 
-def debugLogOff() { // library marker davegut.Logging, line 42
-	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 43
-	logInfo("debugLogOff") // library marker davegut.Logging, line 44
-} // library marker davegut.Logging, line 45
+def logInfo(msg) {  // library marker davegut.Logging, line 42
+	if (textEnable || infoLog) { // library marker davegut.Logging, line 43
+		log.info "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 44
+	} // library marker davegut.Logging, line 45
+} // library marker davegut.Logging, line 46
 
-def logDebug(msg) { // library marker davegut.Logging, line 47
-	if (logEnable || debugLog) { // library marker davegut.Logging, line 48
-		log.debug "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 49
-	} // library marker davegut.Logging, line 50
+def debugLogOff() { // library marker davegut.Logging, line 48
+	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 49
+	logInfo("debugLogOff") // library marker davegut.Logging, line 50
 } // library marker davegut.Logging, line 51
 
-def logWarn(msg) { log.warn "${device.displayName}-${driverVer()}: ${msg}" } // library marker davegut.Logging, line 53
+def logDebug(msg) { // library marker davegut.Logging, line 53
+	if (logEnable || debugLog) { // library marker davegut.Logging, line 54
+		log.debug "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 55
+	} // library marker davegut.Logging, line 56
+} // library marker davegut.Logging, line 57
 
-// ~~~~~ end include (1072) davegut.Logging ~~~~~
+def logWarn(msg) { log.warn "${device.displayName}-${driverVer()}: ${msg}" } // library marker davegut.Logging, line 59
+
+// ~~~~~ end include (1303) davegut.Logging ~~~~~
