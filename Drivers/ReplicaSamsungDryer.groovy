@@ -91,7 +91,7 @@ def sendRawCommand(component, capability, command, arguments = []) {
 
 
 
-// ~~~~~ start include (1310) replica.samsungDryerCommon ~~~~~
+// ~~~~~ start include (1314) replica.samsungDryerCommon ~~~~~
 library ( // library marker replica.samsungDryerCommon, line 1
 	name: "samsungDryerCommon", // library marker replica.samsungDryerCommon, line 2
 	namespace: "replica", // library marker replica.samsungDryerCommon, line 3
@@ -100,7 +100,7 @@ library ( // library marker replica.samsungDryerCommon, line 1
 	category: "utilities", // library marker replica.samsungDryerCommon, line 6
 	documentationLink: "" // library marker replica.samsungDryerCommon, line 7
 ) // library marker replica.samsungDryerCommon, line 8
-//	Version 1.0 // library marker replica.samsungDryerCommon, line 9
+//	Version 1.0-2 // library marker replica.samsungDryerCommon, line 9
 
 //	===== Common Capabilities, Commands, and Attributes ===== // library marker replica.samsungDryerCommon, line 11
 capability "Refresh" // library marker replica.samsungDryerCommon, line 12
@@ -198,7 +198,7 @@ def calcTimeRemaining(completionTime) { // library marker replica.samsungDryerCo
 	return hhmmss // library marker replica.samsungDryerCommon, line 104
 } // library marker replica.samsungDryerCommon, line 105
 
-// ~~~~~ end include (1310) replica.samsungDryerCommon ~~~~~
+// ~~~~~ end include (1314) replica.samsungDryerCommon ~~~~~
 
 // ~~~~~ start include (1305) replica.samsungReplicaCommon ~~~~~
 library ( // library marker replica.samsungReplicaCommon, line 1
@@ -296,7 +296,7 @@ def configureChildren(components) { // library marker replica.samsungReplicaComm
 			logData << ["${designChild.key}": [status: "SmartThingsDisabled"]] // library marker replica.samsungReplicaCommon, line 93
 		} else { // library marker replica.samsungReplicaCommon, line 94
 			def dni = device.getDeviceNetworkId() // library marker replica.samsungReplicaCommon, line 95
-			def childDni = "dni-${designChild.key}" // library marker replica.samsungReplicaCommon, line 96
+			def childDni = "${dni}-${designChild.key}" // library marker replica.samsungReplicaCommon, line 96
 			def child = getChildDevice(childDni) // library marker replica.samsungReplicaCommon, line 97
 			def name = "${device.displayName} ${designChild.key}" // library marker replica.samsungReplicaCommon, line 98
 			if (child == null) { // library marker replica.samsungReplicaCommon, line 99

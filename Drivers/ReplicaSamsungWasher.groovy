@@ -22,7 +22,7 @@ d.	Changed sendRawCommand to use dataValue replica vice description.
 Issues with this driver: Contact davegut via Private Message on the
 Hubitat Community site: https://community.hubitat.com/
 ==========================================================================*/
-def driverVer() { return "1.0-1" }
+def driverVer() { return "1.0" }
 def appliance() { return "ReplicaSamsungWasher" }
 
 metadata {
@@ -89,7 +89,7 @@ def sendRawCommand(component, capability, command, arguments = []) {
 
 
 
-// ~~~~~ start include (1311) replica.samsungWasherCommon ~~~~~
+// ~~~~~ start include (1317) replica.samsungWasherCommon ~~~~~
 library ( // library marker replica.samsungWasherCommon, line 1
 	name: "samsungWasherCommon", // library marker replica.samsungWasherCommon, line 2
 	namespace: "replica", // library marker replica.samsungWasherCommon, line 3
@@ -116,7 +116,7 @@ command "stop" // library marker replica.samsungWasherCommon, line 23
 
 String helpLogo() { // library marker replica.samsungWasherCommon, line 25
 	return """<a href="https://github.com/DaveGut/HubithingsReplica/blob/main/Docs/SamsungWasherReadme.md">""" + // library marker replica.samsungWasherCommon, line 26
-		"""<div style="position: absolute; top: 20px; right: 150px; height: 80px; font-size: 28px;">Dryer Help</div></a>""" // library marker replica.samsungWasherCommon, line 27
+		"""<div style="position: absolute; top: 20px; right: 150px; height: 80px; font-size: 28px;">Washer Help</div></a>""" // library marker replica.samsungWasherCommon, line 27
 } // library marker replica.samsungWasherCommon, line 28
 
 //	===== Device Commands ===== // library marker replica.samsungWasherCommon, line 30
@@ -198,7 +198,7 @@ def calcTimeRemaining(completionTime) { // library marker replica.samsungWasherC
 	return hhmmss // library marker replica.samsungWasherCommon, line 106
 } // library marker replica.samsungWasherCommon, line 107
 
-// ~~~~~ end include (1311) replica.samsungWasherCommon ~~~~~
+// ~~~~~ end include (1317) replica.samsungWasherCommon ~~~~~
 
 // ~~~~~ start include (1305) replica.samsungReplicaCommon ~~~~~
 library ( // library marker replica.samsungReplicaCommon, line 1
@@ -296,7 +296,7 @@ def configureChildren(components) { // library marker replica.samsungReplicaComm
 			logData << ["${designChild.key}": [status: "SmartThingsDisabled"]] // library marker replica.samsungReplicaCommon, line 93
 		} else { // library marker replica.samsungReplicaCommon, line 94
 			def dni = device.getDeviceNetworkId() // library marker replica.samsungReplicaCommon, line 95
-			def childDni = "dni-${designChild.key}" // library marker replica.samsungReplicaCommon, line 96
+			def childDni = "${dni}-${designChild.key}" // library marker replica.samsungReplicaCommon, line 96
 			def child = getChildDevice(childDni) // library marker replica.samsungReplicaCommon, line 97
 			def name = "${device.displayName} ${designChild.key}" // library marker replica.samsungReplicaCommon, line 98
 			if (child == null) { // library marker replica.samsungReplicaCommon, line 99

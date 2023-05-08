@@ -130,7 +130,7 @@ def setOvenLight(lightLevel) {
 
 
 
-// ~~~~~ start include (1307) replica.samsungOvenCommon ~~~~~
+// ~~~~~ start include (1315) replica.samsungOvenCommon ~~~~~
 library ( // library marker replica.samsungOvenCommon, line 1
 	name: "samsungOvenCommon", // library marker replica.samsungOvenCommon, line 2
 	namespace: "replica", // library marker replica.samsungOvenCommon, line 3
@@ -506,7 +506,7 @@ def convertHhMmSsToInt(timeValue) { // library marker replica.samsungOvenCommon,
 	return seconds // library marker replica.samsungOvenCommon, line 373
 } // library marker replica.samsungOvenCommon, line 374
 
-// ~~~~~ end include (1307) replica.samsungOvenCommon ~~~~~
+// ~~~~~ end include (1315) replica.samsungOvenCommon ~~~~~
 
 // ~~~~~ start include (1305) replica.samsungReplicaCommon ~~~~~
 library ( // library marker replica.samsungReplicaCommon, line 1
@@ -604,7 +604,7 @@ def configureChildren(components) { // library marker replica.samsungReplicaComm
 			logData << ["${designChild.key}": [status: "SmartThingsDisabled"]] // library marker replica.samsungReplicaCommon, line 93
 		} else { // library marker replica.samsungReplicaCommon, line 94
 			def dni = device.getDeviceNetworkId() // library marker replica.samsungReplicaCommon, line 95
-			def childDni = "dni-${designChild.key}" // library marker replica.samsungReplicaCommon, line 96
+			def childDni = "${dni}-${designChild.key}" // library marker replica.samsungReplicaCommon, line 96
 			def child = getChildDevice(childDni) // library marker replica.samsungReplicaCommon, line 97
 			def name = "${device.displayName} ${designChild.key}" // library marker replica.samsungReplicaCommon, line 98
 			if (child == null) { // library marker replica.samsungReplicaCommon, line 99

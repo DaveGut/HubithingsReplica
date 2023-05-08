@@ -58,7 +58,7 @@ def sendRawCommand(component, capability, command, arguments = []) {
 
 
 
-// ~~~~~ start include (1311) replica.samsungWasherCommon ~~~~~
+// ~~~~~ start include (1317) replica.samsungWasherCommon ~~~~~
 library ( // library marker replica.samsungWasherCommon, line 1
 	name: "samsungWasherCommon", // library marker replica.samsungWasherCommon, line 2
 	namespace: "replica", // library marker replica.samsungWasherCommon, line 3
@@ -85,7 +85,7 @@ command "stop" // library marker replica.samsungWasherCommon, line 23
 
 String helpLogo() { // library marker replica.samsungWasherCommon, line 25
 	return """<a href="https://github.com/DaveGut/HubithingsReplica/blob/main/Docs/SamsungWasherReadme.md">""" + // library marker replica.samsungWasherCommon, line 26
-		"""<div style="position: absolute; top: 20px; right: 150px; height: 80px; font-size: 28px;">Dryer Help</div></a>""" // library marker replica.samsungWasherCommon, line 27
+		"""<div style="position: absolute; top: 20px; right: 150px; height: 80px; font-size: 28px;">Washer Help</div></a>""" // library marker replica.samsungWasherCommon, line 27
 } // library marker replica.samsungWasherCommon, line 28
 
 //	===== Device Commands ===== // library marker replica.samsungWasherCommon, line 30
@@ -167,7 +167,7 @@ def calcTimeRemaining(completionTime) { // library marker replica.samsungWasherC
 	return hhmmss // library marker replica.samsungWasherCommon, line 106
 } // library marker replica.samsungWasherCommon, line 107
 
-// ~~~~~ end include (1311) replica.samsungWasherCommon ~~~~~
+// ~~~~~ end include (1317) replica.samsungWasherCommon ~~~~~
 
 // ~~~~~ start include (1304) replica.samsungReplicaChildCommon ~~~~~
 library ( // library marker replica.samsungReplicaChildCommon, line 1

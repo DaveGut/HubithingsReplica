@@ -66,7 +66,7 @@ def sendRawCommand(component, capability, command, arguments = []) {
 
 
 
-// ~~~~~ start include (1307) replica.samsungOvenCommon ~~~~~
+// ~~~~~ start include (1315) replica.samsungOvenCommon ~~~~~
 library ( // library marker replica.samsungOvenCommon, line 1
 	name: "samsungOvenCommon", // library marker replica.samsungOvenCommon, line 2
 	namespace: "replica", // library marker replica.samsungOvenCommon, line 3
@@ -442,7 +442,7 @@ def convertHhMmSsToInt(timeValue) { // library marker replica.samsungOvenCommon,
 	return seconds // library marker replica.samsungOvenCommon, line 373
 } // library marker replica.samsungOvenCommon, line 374
 
-// ~~~~~ end include (1307) replica.samsungOvenCommon ~~~~~
+// ~~~~~ end include (1315) replica.samsungOvenCommon ~~~~~
 
 // ~~~~~ start include (1304) replica.samsungReplicaChildCommon ~~~~~
 library ( // library marker replica.samsungReplicaChildCommon, line 1
