@@ -35,9 +35,9 @@ metadata {
 		capability "Switch Level"
 		capability "Change Level"
 		capability "Color Temperature"
-		command "setColorTemperature", [[
-			name: "Color Temperature",
-			type: "NUMBER"]]
+//		command "setColorTemperature", [[
+//			name: "Color Temperature",
+//			type: "NUMBER"]]
 		capability "Refresh"
 		capability "Actuator"
 		capability "Configuration"
@@ -199,11 +199,14 @@ def setLevelValue(level) {
 
 //	===== CT and Color Bulb Commands =====
 //	CT May not work with light strips
-def setColorTemperature(colorTemp) {
+def setColorTemperature(colorTemp, level = device.currentValue("level"), transTime=null) {
+//def setColorTemperature(colorTemp) {
 	if (colorTemp > ctHigh) { colorTemp = ctHigh}
 	else if (colorTemp < ctLow) { colorTemp = ctLow}
 	sendEvent(name: "colorMode", value: "CT")
 	sendCommand("setColorTemperature", colorTemp)
+//	added single line
+	setLevel(level, transTime)
 	if(device.currentValue("colorTemperature") == colorTemp) {
 		setColorTemperatureValue(colorTemp)
 	}
